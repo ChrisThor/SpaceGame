@@ -86,11 +86,11 @@ def main():
     # space.space_objects.append(portal.Portal(3e4, 0, 0, 0, -50, (123, 123, 123), 3, 20, math.pi / 2))
     # space.space_objects[1].connect_portals(space.space_objects[2])
 
-    for i in range(150):
-        space.space_objects.append(space_object.SpaceObject("Ding", 1e14, 15, 0, 0, random.randint(-3500, 3500),
-                                                            random.randint(-1600, 1600),
-                                                            (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
-                                                            show_health_bar=False))
+    # for i in range(150):
+    #     space.space_objects.append(space_object.SpaceObject("Ding", 1e14, 15, 0, 0, random.randint(-3500, 3500),
+    #                                                         random.randint(-1600, 1600),
+    #                                                         (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
+    #                                                         show_health_bar=False))
 
     template_space_object = None
 
