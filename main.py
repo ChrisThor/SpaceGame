@@ -22,13 +22,17 @@ def draw_stars(static_stars, small_stars, big_stars, background, hope_ship, cent
         pos_x_on_screen = (center_x + (small_star.position.x_value - hope_ship.position.x_value / 3))
         pos_y_on_screen = (center_y + (small_star.position.y_value - hope_ship.position.y_value / 3))
         while pos_x_on_screen < -small_star.size:
-            pos_x_on_screen += 2 * center_x
+            small_star.position.x_value += 2 * center_x
+            pos_x_on_screen = (center_x + (small_star.position.x_value - hope_ship.position.x_value / 3))
         while pos_x_on_screen > 2 * center_x:
-            pos_x_on_screen -= 2 * center_x
+            small_star.position.x_value -= 2 * center_x
+            pos_x_on_screen = (center_x + (small_star.position.x_value - hope_ship.position.x_value / 3))
         while pos_y_on_screen < -small_star.size:
-            pos_y_on_screen += 2 * center_y
+            small_star.position.y_value += 2 * center_y
+            pos_y_on_screen = (center_y + (small_star.position.y_value - hope_ship.position.y_value / 3))
         while pos_y_on_screen > 2 * center_y:
-            pos_y_on_screen -= 2 * center_y
+            small_star.position.y_value -= 2 * center_y
+            pos_y_on_screen = (center_y + (small_star.position.y_value - hope_ship.position.y_value / 3))
         pygame.draw.rect(background,
                          small_star.colour,
                          (pos_x_on_screen, pos_y_on_screen, small_star.size, small_star.size))
@@ -36,13 +40,17 @@ def draw_stars(static_stars, small_stars, big_stars, background, hope_ship, cent
         pos_x_on_screen = (center_x + (big_star.position.x_value - hope_ship.position.x_value / 1.8))
         pos_y_on_screen = (center_y + (big_star.position.y_value - hope_ship.position.y_value / 1.8))
         while pos_x_on_screen < -big_star.size:
-            pos_x_on_screen += 2 * center_x
+            big_star.position.x_value += 2 * center_x
+            pos_x_on_screen = (center_x + (big_star.position.x_value - hope_ship.position.x_value / 1.8))
         while pos_x_on_screen > 2 * center_x:
-            pos_x_on_screen -= 2 * center_x
+            big_star.position.x_value -= 2 * center_x
+            pos_x_on_screen = (center_x + (big_star.position.x_value - hope_ship.position.x_value / 1.8))
         while pos_y_on_screen < -big_star.size:
-            pos_y_on_screen += 2 * center_y
+            big_star.position.y_value += 2 * center_y
+            pos_y_on_screen = (center_y + (big_star.position.y_value - hope_ship.position.y_value / 1.8))
         while pos_y_on_screen > 2 * center_y:
-            pos_y_on_screen -= 2 * center_y
+            big_star.position.y_value -= 2 * center_y
+            pos_y_on_screen = (center_y + (big_star.position.y_value - hope_ship.position.y_value / 1.8))
         pygame.draw.rect(background,
                          big_star.colour,
                          (pos_x_on_screen, pos_y_on_screen, big_star.size, big_star.size))
