@@ -16,8 +16,8 @@ class Block:
         self.alternate_colour = None
         self.name = name
         self.description = description
-        if random.randint(0, 1) == 0:
-            solid = False
+        # if random.randint(0, 1) == 0:
+        #     solid = False
         self.solid = solid
         self.hardness = hardness
         self.size = 8

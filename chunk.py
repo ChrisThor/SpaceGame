@@ -9,10 +9,9 @@ class Chunk:
         self.position = position
         self.blocks = []
         self.size = size
-        if random.randint(0, 4) == 4:
+        solid = True
+        if position.y_value < 0:
             solid = False
-        else:
-            solid = True
         for i in range(size):
             buffer = []
             for j in range(size):

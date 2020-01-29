@@ -6,9 +6,10 @@ import math
 
 
 class World:
-    def __init__(self):
+    def __init__(self, width):
         self.chunks = []
-        for i in range(-8, 8):
+        self.width = width
+        for i in range(int(-width / 2), int(width / 2)):
             for j in range(-8, 8):
                 self.chunks.append(chunk.Chunk(vector.Vector(i, j)))
         self.player = player.Player()
@@ -72,6 +73,10 @@ class World:
 
     def get_active_chunks(self):
         self.active_chunks = []
+        if self.player.position.x_value < -self.width / 2 * self.chunks[0].size * self.chunks[0].blocks[0][0].size:
+            self.player.position.x_value += self.width * self.chunks[0].size * self.chunks[0].blocks[0][0].size
+        elif self.player.position.x_value > self.width / 2 * self.chunks[0].size * self.chunks[0].blocks[0][0].size:
+            self.player.position.x_value -= self.width * self.chunks[0].size * self.chunks[0].blocks[0][0].size
         neg_val = 3
         pos_val = 2
         for chunq in self.chunks:

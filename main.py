@@ -102,7 +102,7 @@ def main():
     #                                                         (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
     #                                                         show_health_bar=False))
 
-    template_planet_surface = world.World()
+    template_planet_surface = world.World(10)
 
     template_space_object = None
 
