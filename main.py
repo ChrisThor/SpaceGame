@@ -159,7 +159,7 @@ def main():
                     else:
                         debug_mode = True
                 elif event.key == pygame.K_SPACE:
-                    if not paused:
+                    if not paused and not hope_ship.crashed:
                         hope_ship.launch_bullet(space, fps)
                 elif event.key == pygame.K_w:
                     if not paused:
