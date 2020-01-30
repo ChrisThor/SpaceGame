@@ -5,7 +5,7 @@ import vector
 
 
 class Player:
-    def __init__(self, position=vector.Vector(1111, 0)):
+    def __init__(self, position=vector.Vector(8, 0)):
         self.position = position
         self.speed = vector.Vector()
         self.height = 4
