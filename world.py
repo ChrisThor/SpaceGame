@@ -61,9 +61,11 @@ class World:
         self.get_collision_blocks()
 
         if self.move_right:
-            self.player.move_player(5, tickrate)
+            if self.player.move_player(5, tickrate, self.active_chunks):
+                self.get_collision_blocks()
         elif self.move_left:
-            self.player.move_player(-5, tickrate)
+            if self.player.move_player(-5, tickrate, self.active_chunks):
+                self.get_collision_blocks()
 
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
@@ -117,7 +119,7 @@ class World:
                     for block in block_line:
                         block.alternate_colour = (245, 245, 245)
                         relative_distance_to_player = block.position - self.player.position
-                        if -1.95 < relative_distance_to_player.x_value < 0.95 and \
+                        if -2 < relative_distance_to_player.x_value < 1 and \
                                 relative_distance_to_player.y_value >= 0:
                             block.alternate_colour = (255, 0, 255)
                             if block.solid:
@@ -210,7 +212,7 @@ class World:
                         -5 < relative_distance_to_player.y_value < 0:
                     block.alternate_colour = (255, 255, 0)
                     self.player.left_side_blocks.append(block)
-                elif block.solid and 1 < relative_distance_to_player.x_value <= 2 and \
+                elif block.solid and self.player.width / 2 <= relative_distance_to_player.x_value < 2 and \
                         -5 < relative_distance_to_player.y_value < 0:
                     block.alternate_colour = (200, 200, 0)
                     self.player.right_side_blocks.append(block)

@@ -1,6 +1,7 @@
 import pygame
 import block
 import vector
+import math
 import random
 
 
@@ -43,3 +44,16 @@ class Chunk:
                                          (pos_x_on_screen, pos_y_on_screen,
                                           b.size * zoom_factor, b.size * zoom_factor))
                         b.alternate_colour = None
+
+    def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
+        try:
+            chunk_x = math.floor((bloq.position.x_value + x_offset) / self.size)
+            chunk_y = math.floor((bloq.position.y_value + y_offset) / self.size)
+            if self.position.x_value == chunk_x and self.position.y_value == chunk_y:
+                return self.blocks[(bloq.position.x_value + x_offset) % self.size][(bloq.position.y_value + y_offset) % self.size]
+            else:
+                for chunk in active_chunks:
+                    if chunk.position.x_value == chunk_x and chunk.position.y_value == chunk_y:
+                        return chunk.get_block_relative_to_block(bloq, active_chunks, x_offset, y_offset)
+        except IndexError:
+            return None
