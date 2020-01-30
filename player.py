@@ -1,5 +1,5 @@
 import math
-
+import mining_device
 import pygame
 import vector
 
@@ -15,6 +15,7 @@ class Player:
         self.bottom_blocks = []
         self.left_side_blocks = []
         self.right_side_blocks = []
+        self.mining_device = mining_device.MiningDevice(2, 3)
 
     def draw_player(self, background, center_x, center_y, zoom_factor):
         pygame.draw.rect(background,

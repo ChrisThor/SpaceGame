@@ -56,9 +56,7 @@ class World:
                 if event.button == 1:
                     self.mining = False
 
-        if self.mining:
-            pass
-            # self.dismantle_blocks(center_x, center_y, zoom_factor)
+        self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate)
 
         self.get_collision_blocks()
 
@@ -216,3 +214,26 @@ class World:
                         -5 < relative_distance_to_player.y_value < 0:
                     block.alternate_colour = (200, 200, 0)
                     self.player.right_side_blocks.append(block)
+
+    def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate):
+        mouse_position = pygame.mouse.get_pos()
+        block_pos_x = \
+            math.floor(((mouse_position[0] - center_x) / (self.general_block_size * zoom_factor)) + self.player.position.x_value)
+        block_pos_y = \
+            math.floor(((mouse_position[1] - center_y) / (self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
+
+        area_x_1 = block_pos_x - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
+        area_x_2 = block_pos_x + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
+        area_y_1 = block_pos_y - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
+        area_y_2 = block_pos_y + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
+
+        for chunq in self.active_chunks:
+            for block_x in range(area_x_1, area_x_2 + 1):
+                for block_y in range(area_y_1, area_y_2 + 1):
+                    chunk_pos_x = math.floor(block_x / self.general_chunk_size)
+                    chunk_pos_y = math.floor(block_y / self.general_chunk_size)
+
+                    if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
+                        chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
+                        if self.mining:
+                            chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)

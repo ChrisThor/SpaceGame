@@ -28,7 +28,6 @@ class Block:
             self.hardness -= mining_device.mining_speed * tickrate
         else:
             self.solid = False
-        self.colour = (255, 255, 255)
 
 
 class AirBlock(Block):
