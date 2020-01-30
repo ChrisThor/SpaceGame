@@ -5,11 +5,11 @@ import vector
 
 
 class Player:
-    def __init__(self, position=vector.Vector(8, 0)):
+    def __init__(self, position=vector.Vector(1111, 0)):
         self.position = position
         self.speed = vector.Vector()
-        self.height = 32
-        self.width = 16
+        self.height = 4
+        self.width = 2
         self.jumps = 1
         self.max_jumps = 1
         self.bottom_blocks = []
@@ -25,15 +25,11 @@ class Player:
                           self.height * zoom_factor))
 
     def move_player(self, direction, tickrate):
-        temp_position_x = self.position.x_value + direction * tickrate
         step = direction * tickrate
         if direction > 0:
             smallest_x_distance, amount_of_nearest_blocks, blcos = self.find_smallest_x_distance(self.right_side_blocks, True)
             if len(blcos) > 0:
                 if step < smallest_x_distance - self.width / 2:
-                    # self.position.x_value -= smallest_x_distance * tickrate
-                    # self.position.x_value = temp_position_x + temp_x
-                    # self.position.x_value = direction * tickrate
                     self.position.x_value += direction * tickrate
                 else:
                     pass
@@ -54,9 +50,7 @@ class Player:
         amount = 0
         blcos = []
         for block in blocks:
-            relative_distance_to_player = \
-                ((block.chunk.position * block.chunk.size * block.size + block.position * block.size) -
-                 self.position)
+            relative_distance_to_player = block.position - self.position
             if smallest_x_distance is None:
                 amount = 1
                 smallest_x_distance = relative_distance_to_player.x_value
@@ -83,9 +77,7 @@ class Player:
         smallest_y_distance = None
         temp_block = None
         for block in self.bottom_blocks:
-            relative_distance_to_player = \
-                ((block.chunk.position * block.chunk.size * block.size + block.position * block.size) -
-                 self.position)
+            relative_distance_to_player = (block.position - self.position)
             if smallest_y_distance is None:
                 temp_block = block
                 smallest_y_distance = relative_distance_to_player.y_value
@@ -97,15 +89,13 @@ class Player:
             if smallest_y_distance == 0:
                 return True
             elif smallest_y_distance < 0:
-                self.position.y_value = int(self.position.y_value / temp_block.size) * temp_block.size
+                self.position.y_value = math.floor(self.position.y_value)
                 return True
             else:
                 temp_speed = vector.Vector(self.speed.x_value, self.speed.y_value)
                 temp_speed.y_value += gravity * tickrate
                 temp_position_y = self.position.y_value + temp_speed.y_value * tickrate
-                temp_y = \
-                    ((temp_block.chunk.position.y_value * temp_block.chunk.size * temp_block.size +
-                      temp_block.position.y_value * temp_block.size) - temp_position_y)
+                temp_y = temp_block.position.y_value - temp_position_y
                 if temp_y < 0:
                     self.position.y_value = temp_position_y + temp_y
                     return True
