@@ -150,7 +150,7 @@ class World:
                         block = block_line[j]
                         relative_distance_to_player = block.position - self.player.position
                         if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
-                                -self.player.height + 1 > relative_distance_to_player.y_value <= self.player.height:
+                                -self.player.height > relative_distance_to_player.y_value:
                             block.alternate_colour = (123, 123, 123)
                             self.player.top_blocks.append(block)
                             break
