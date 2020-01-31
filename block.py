@@ -29,6 +29,14 @@ class Block:
         else:
             self.solid = False
 
+    def place(self, colour, name, description, hardness):
+        if not self.solid:
+            self.solid = True
+            self.colour = colour
+            self.name = name
+            self.description = description
+            self.hardness = hardness
+
 
 class AirBlock(Block):
     def __init__(self, position):

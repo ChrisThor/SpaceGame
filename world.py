@@ -2,6 +2,7 @@ import pygame
 import chunk
 import player
 import vector
+import random
 import math
 
 
@@ -18,7 +19,8 @@ class World:
         self.active_chunks = []
         self.move_left = False
         self.move_right = False
-        self.mining = False
+        self.tool_active = False
+        self.tool_mode = 0
         self.mouse_position = None
         self.player_direction = 0
         self.gravity = 1
@@ -44,6 +46,11 @@ class World:
                     if self.player.jumps > 0 and not self.player.check_top_blocks(tickrate, 50):
                         self.player.jumps -= 1
                         self.player.speed.y_value = -31.25
+                elif event.key == pygame.K_x:
+                    if self.tool_mode == 0:
+                        self.tool_mode = 1
+                    else:
+                        self.tool_mode = 0
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
                     self.move_left = False
@@ -51,10 +58,10 @@ class World:
                     self.move_right = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.mining = True
+                    self.tool_active = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
-                    self.mining = False
+                    self.tool_active = False
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate)
 
@@ -276,5 +283,12 @@ class World:
 
                     if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
                         chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
-                        if self.mining:
-                            chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)
+                        if self.tool_active:
+                            if self.tool_mode == 0:
+                                chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)
+                            elif self.tool_mode == 1:
+                                chunq.blocks[block_x % self.general_chunk_size][
+                                    block_y % self.general_chunk_size].place((random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
+                                                                             "Test Block",
+                                                                             "This is a test description",
+                                                                             1)
