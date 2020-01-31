@@ -51,11 +51,15 @@ class World:
                         self.tool_mode = 1
                     else:
                         self.tool_mode = 0
+                elif event.key == pygame.K_LCTRL:
+                    self.player.mining_device.size = 1
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
                     self.move_left = False
                 elif event.key == pygame.K_d:
                     self.move_right = False
+                elif event.key == pygame.K_LCTRL:
+                    self.player.mining_device.size = self.player.mining_device.original_size
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.tool_active = True
@@ -288,7 +292,7 @@ class World:
 
                     if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
                         chunq.blocks[block_x % self.general_chunk_size][
-                                     block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
+                            block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
                         if self.tool_active:
                             if self.tool_mode == 0:
                                 chunq.blocks[block_x % self.general_chunk_size][
