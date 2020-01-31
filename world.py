@@ -91,17 +91,27 @@ class World:
             self.player.position.x_value += self.width * self.general_chunk_size
         elif self.player.position.x_value > self.width / 2 * self.general_chunk_size:
             self.player.position.x_value -= self.width * self.general_chunk_size
-        neg_val = 3
-        pos_val = 2
-        for chunq in self.chunks:
-            if -chunq.size * neg_val < \
-                    chunq.position.x_value * chunq.size - self.player.position.x_value < \
-                    chunq.size * pos_val:
 
-                if -chunq.size * neg_val < \
-                        chunq.position.y_value * chunq.size - self.player.position.y_value < \
-                        chunq.size * pos_val:
+        chunk_pos_x = math.floor(self.player.position.x_value / self.general_chunk_size)
+        chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
+
+        neg_val_x = -3
+        pos_val_x = 3
+        neg_val_y = -2.5
+        pos_val_y = 2.5
+        for chunq in self.chunks:
+            if chunk_pos_y + neg_val_y < chunq.position.y_value < chunk_pos_y + pos_val_y:
+                if chunk_pos_x + neg_val_x < chunq.position.x_value < chunk_pos_x + pos_val_x:
+                    chunq.block_offset = None
                     self.active_chunks.append(chunq)
+                elif chunk_pos_x + neg_val_x < -self.width / 2:
+                    if chunk_pos_x + self.width + neg_val_x < chunq.position.x_value < self.width / 2:
+                        chunq.block_offset = -self.width * self.general_chunk_size
+                        self.active_chunks.append(chunq)
+                elif chunk_pos_x + pos_val_x > self.width / 2:
+                    if -self.width / 2 <= chunq.position.x_value < chunk_pos_x - self.width + pos_val_x:
+                        chunq.block_offset = self.width * self.general_chunk_size
+                        self.active_chunks.append(chunq)
 
     def apply_speed(self, tickrate):
         self.player.position += self.player.speed * tickrate

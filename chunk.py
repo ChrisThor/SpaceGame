@@ -8,6 +8,7 @@ import random
 class Chunk:
     def __init__(self, position=vector.Vector(), size=16, block_size=8):
         self.position = position
+        self.block_offset = None
         self.blocks = []
         self.size = size
         solid = True
@@ -28,11 +29,18 @@ class Chunk:
         for block_line in self.blocks:
             for b in block_line:
                 if b.solid:
-                    relative_distance_to_player = (b.position - player.position) * zoom_factor * b.size
-                    pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
-                    pos_y_on_screen = int(
-                        center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
-
+                    if self.block_offset is None:
+                        relative_distance_to_player = (b.position - player.position) * zoom_factor * b.size
+                        pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+                        pos_y_on_screen = int(
+                            center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
+                    else:
+                        position = b.position.copy()
+                        position.x_value += self.block_offset
+                        relative_distance_to_player = (position - player.position) * zoom_factor * b.size
+                        pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+                        pos_y_on_screen = int(
+                            center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
                     if b.alternate_colour is None:
                         pygame.draw.rect(background,
                                          b.colour,
