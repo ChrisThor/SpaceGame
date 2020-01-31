@@ -13,6 +13,7 @@ class Player:
         self.jumps = 1
         self.max_jumps = 1
         self.bottom_blocks = []
+        self.top_blocks = []
         self.left_side_blocks = []
         self.right_side_blocks = []
         self.mining_device = mining_device.MiningDevice(2, 3)
@@ -64,13 +65,14 @@ class Player:
             direc = -1
         else:
             direc = 1
-        required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)
-        if required_block is not None and required_block.solid:
-            collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)
-            if collide_block_corner is not None and not collide_block_corner.solid:
-                self.position.y_value -= 1.0
-                self.position.x_value += direction * tickrate
-                return True
+        if not self.check_top_blocks(tickrate, 0):
+            required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)
+            if required_block is not None and required_block.solid:
+                collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)
+                if collide_block_corner is not None and not collide_block_corner.solid:
+                    self.position.y_value -= 1.0
+                    self.position.x_value += direction * tickrate
+                    return True
         return False
 
         # if collide_block_corner is not None:
@@ -148,4 +150,32 @@ class Player:
                     return True
                 return False
         except TypeError:
+            return False
+
+    def check_top_blocks(self, tickrate, gravity):
+        smallest_y_distance = None
+        temp_block = None
+        for block in self.top_blocks:
+            relative_distance_to_player = (block.position - self.position)
+            if smallest_y_distance is None:
+                temp_block = block
+                smallest_y_distance = relative_distance_to_player.y_value
+            elif smallest_y_distance < relative_distance_to_player.y_value:
+                temp_block = block
+                smallest_y_distance = relative_distance_to_player.y_value
+
+        if smallest_y_distance is not None and temp_block is not None:
+            if smallest_y_distance == -self.height - 1:
+                self.speed.y_value = 0
+                return True
+            else:
+                temp_speed = vector.Vector(self.speed.x_value, self.speed.y_value)
+                temp_speed.y_value += gravity * tickrate
+                temp_position_y = self.position.y_value + temp_speed.y_value * tickrate
+                if temp_position_y - self.height - 1 < temp_block.position.y_value:
+                    self.position.y_value = temp_block.position.y_value + self.height + 1
+                    self.speed.y_value = 0
+                    return True
+                return False
+        else:
             return False

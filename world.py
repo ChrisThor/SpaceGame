@@ -41,7 +41,7 @@ class World:
                 elif event.key == pygame.K_F1:
                     zoom_factor /= 2
                 elif event.key == pygame.K_SPACE:
-                    if self.player.jumps > 0:
+                    if self.player.jumps > 0 and not self.player.check_top_blocks(tickrate, 50):
                         self.player.jumps -= 1
                         self.player.speed.y_value = -31.25
             elif event.type == pygame.KEYUP:
@@ -77,6 +77,8 @@ class World:
 
     def apply_gravity(self, tickrate):
         gravity = 50
+        if not self.player.check_top_blocks(tickrate, gravity):
+            pass
         if not self.player.check_blocks_underneath(tickrate, gravity):
             if self.player.speed.y_value < gravity:
                 self.player.speed.y_value += gravity * tickrate
@@ -116,34 +118,61 @@ class World:
     def apply_speed(self, tickrate):
         self.player.position += self.player.speed * tickrate
 
+    def get_chunks_above_position(self, chunk_pos_x, chunk_pos_y):
+        top_chunks = []
+        for chunk_ in self.active_chunks:
+            if chunk_.position.x_value == chunk_pos_x:
+                top_chunks.append(chunk_)
+                if chunk_.position.y_value == chunk_pos_y:
+                    return top_chunks
+
     def get_collision_blocks(self):
         chunk_pos_x = math.floor(self.player.position.x_value / self.general_chunk_size)
         chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
         self.player.bottom_blocks = []
+        self.player.top_blocks = []
         self.player.left_side_blocks = []
         self.player.right_side_blocks = []
         # print(f"{chunk_pos_x},{chunk_pos_y}")
-        for chunq in self.active_chunks:
-            if chunq.position.x_value == chunk_pos_x and chunq.position.y_value == chunk_pos_y:
-                for block_line in chunq.blocks:
-                    for block in block_line:
-                        block.alternate_colour = (245, 245, 245)
+        if self.player.speed.y_value <= 0:
+            top_chunks = self.get_chunks_above_position(chunk_pos_x, chunk_pos_y)
+            for i in range(len(top_chunks) - 1, -1, -1):
+                chunk_ = top_chunks[i]
+                for block_line in chunk_.blocks:
+                    for j in range(len(block_line) - 1, -1, -1):
+                        block = block_line[j]
                         relative_distance_to_player = block.position - self.player.position
-                        if -2 < relative_distance_to_player.x_value < 1 and \
-                                relative_distance_to_player.y_value >= 0:
-                            block.alternate_colour = (255, 0, 255)
-                            if block.solid:
-                                self.player.bottom_blocks.append(block)
-                                break
-                    if len(self.player.bottom_blocks) == 3:
-                        # break
-                        pass
-                if len(self.player.bottom_blocks) == 0:
-                    chunk_pos_y += 1
-                else:
+                        if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
+                                -self.player.height + 1 > relative_distance_to_player.y_value <= self.player.height:
+                            block.alternate_colour = (123, 123, 123)
+                            self.player.top_blocks.append(block)
+                            break
+                    if len(self.player.top_blocks) == 3:
+                        break
+                if len(self.player.top_blocks) == 3:
                     break
+        if self.player.speed.y_value >= 0:
+            for chunq in self.active_chunks:
+                if chunq.position.x_value == chunk_pos_x and chunq.position.y_value == chunk_pos_y:
+                    for block_line in chunq.blocks:
+                        for block in block_line:
+                            # block.alternate_colour = (245, 245, 245)
+                            relative_distance_to_player = block.position - self.player.position
+                            if -2 < relative_distance_to_player.x_value < 1 and \
+                                    relative_distance_to_player.y_value >= 0:
+                                if block.solid:
+                                    block.alternate_colour = (255, 0, 255)
+                                    self.player.bottom_blocks.append(block)
+                                    break
+                        if len(self.player.bottom_blocks) == 3:
+                            break
+                            pass
+                    if len(self.player.bottom_blocks) == 0:
+                        chunk_pos_y += 1
+                    else:
+                        break
 
-        chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
+            chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
         a_a = math.floor((self.player.position.x_value - self.player.width) / self.general_chunk_size)
         b_a = math.floor((self.player.position.y_value - self.player.height) / self.general_chunk_size)
         a_c = math.floor((self.player.position.x_value + self.player.width * 2) / self.general_chunk_size)
@@ -216,7 +245,7 @@ class World:
     def sideways_check(self, chanq):
         for block_line in chanq.blocks:
             for block in block_line:
-                block.alternate_colour = (255, 125, 12)
+                # block.alternate_colour = (255, 125, 12)
                 relative_distance_to_player = block.position - self.player.position
                 if block.solid and -3 < relative_distance_to_player.x_value < -self.player.width / 2 and \
                         -5 < relative_distance_to_player.y_value < 0:
