@@ -281,14 +281,23 @@ class World:
                     chunk_pos_x = math.floor(block_x / self.general_chunk_size)
                     chunk_pos_y = math.floor(block_y / self.general_chunk_size)
 
+                    if chunk_pos_x < -self.width / 2:
+                        chunk_pos_x += self.width
+                    elif chunk_pos_x >= self.width / 2:
+                        chunk_pos_x -= self.width
+
                     if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
-                        chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
+                        chunq.blocks[block_x % self.general_chunk_size][
+                                     block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
                         if self.tool_active:
                             if self.tool_mode == 0:
-                                chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)
+                                chunq.blocks[block_x % self.general_chunk_size][
+                                    block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)
                             elif self.tool_mode == 1:
                                 chunq.blocks[block_x % self.general_chunk_size][
-                                    block_y % self.general_chunk_size].place((random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
+                                    block_y % self.general_chunk_size].place((random.randint(0, 123),
+                                                                              random.randint(0, 255),
+                                                                              random.randint(0, 255)),
                                                                              "Test Block",
                                                                              "This is a test description",
                                                                              1)
