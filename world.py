@@ -105,13 +105,13 @@ class World:
         elif self.player.position.x_value > self.width / 2 * self.general_chunk_size:
             self.player.position.x_value -= self.width * self.general_chunk_size
 
-        chunk_pos_x = math.floor(self.player.position.x_value / self.general_chunk_size)
-        chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
+        chunk_pos_x = math.floor((self.player.position.x_value + 7) / self.general_chunk_size)
+        chunk_pos_y = math.floor((self.player.position.y_value + 7) / self.general_chunk_size)
 
-        neg_val_x = -3
+        neg_val_x = -4
         pos_val_x = 3
-        neg_val_y = -2.5
-        pos_val_y = 2.5
+        neg_val_y = -3
+        pos_val_y = 2
         for chunq in self.chunks:
             if chunk_pos_y + neg_val_y < chunq.position.y_value < chunk_pos_y + pos_val_y:
                 if chunk_pos_x + neg_val_x < chunq.position.x_value < chunk_pos_x + pos_val_x:
