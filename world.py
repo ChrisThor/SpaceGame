@@ -43,7 +43,8 @@ class World:
                 elif event.key == pygame.K_F1:
                     zoom_factor /= 2
                 elif event.key == pygame.K_SPACE:
-                    if self.player.jumps > 0 and not self.player.check_top_blocks(tickrate, 50):
+                    if self.player.speed.y_value == 0 and self.player.jumps > 0 and \
+                            not self.player.check_top_blocks(tickrate, 50):
                         self.player.jumps -= 1
                         self.player.speed.y_value = -31.25
                 elif event.key == pygame.K_x:
