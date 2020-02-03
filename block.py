@@ -10,7 +10,10 @@ class Block:
                  name="Test Block",
                  description="This is a test description",
                  solid=True,
-                 hardness=1):
+                 hardness=1,
+                 brightness=1):
+        if brightness > 1:
+            brightness = 1
         self.position = position
         self.chunk = chunk
         self.colour = colour
@@ -22,6 +25,7 @@ class Block:
         self.solid = solid
         self.hardness = hardness
         self.size = size
+        self.brightness = brightness
 
     def dismantle(self, mining_device, tickrate):
         if self.hardness > 0:

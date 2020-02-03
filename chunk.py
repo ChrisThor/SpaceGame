@@ -43,7 +43,7 @@ class Chunk:
                             center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
                     if b.alternate_colour is None:
                         pygame.draw.rect(background,
-                                         b.colour,
+                                         (b.colour[0] * b.brightness, b.colour[1] * b.brightness, b.colour[2] * b.brightness),
                                          (pos_x_on_screen, pos_y_on_screen,
                                           b.size * zoom_factor, b.size * zoom_factor))
                     else:
