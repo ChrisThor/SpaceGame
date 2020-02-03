@@ -62,9 +62,13 @@ class World:
                     self.player.mining_device.size = self.player.mining_device.original_size
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+                    self.player.mining_device.mode = 0
+                    self.tool_active = True
+                elif event.button == 3:
+                    self.player.mining_device.mode = 1
                     self.tool_active = True
             elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
+                if event.button == 1 or event.button == 3:
                     self.tool_active = False
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate)
@@ -80,9 +84,13 @@ class World:
 
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
+
+        for chunq in self.active_chunks:
+            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player)
+
         self.player.draw_player(background, center_x, center_y, zoom_factor * self.general_block_size)
         for chunq in self.active_chunks:
-            chunq.draw_chunk(background, center_x, center_y, zoom_factor, self.player)
+            chunq.draw_chunk_foreground(background, center_x, center_y, zoom_factor, self.player)
 
         return running, zoom_factor
 
@@ -151,7 +159,7 @@ class World:
                 chunk_ = top_chunks[i]
                 for block_line in chunk_.blocks:
                     for j in range(len(block_line) - 1, -1, -1):
-                        block = block_line[j]
+                        block = block_line[j][0]
                         relative_distance_to_player = block.position - self.player.position
                         if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
                                 -self.player.height > relative_distance_to_player.y_value:
@@ -167,6 +175,7 @@ class World:
                 if chunq.position.x_value == chunk_pos_x and chunq.position.y_value == chunk_pos_y:
                     for block_line in chunq.blocks:
                         for block in block_line:
+                            block = block[0]
                             # block.alternate_colour = (245, 245, 245)
                             relative_distance_to_player = block.position - self.player.position
                             if -2 < relative_distance_to_player.x_value < 1 and \
@@ -256,6 +265,7 @@ class World:
     def sideways_check(self, chanq):
         for block_line in chanq.blocks:
             for block in block_line:
+                block = block[0]
                 # block.alternate_colour = (255, 125, 12)
                 relative_distance_to_player = block.position - self.player.position
                 if block.solid and -3 < relative_distance_to_player.x_value < -self.player.width / 2 and \
@@ -270,9 +280,11 @@ class World:
     def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate):
         mouse_position = pygame.mouse.get_pos()
         block_pos_x = \
-            math.floor(((mouse_position[0] - center_x) / (self.general_block_size * zoom_factor)) + self.player.position.x_value)
+            math.floor(((mouse_position[0] - center_x) / (
+                    self.general_block_size * zoom_factor)) + self.player.position.x_value)
         block_pos_y = \
-            math.floor(((mouse_position[1] - center_y) / (self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
+            math.floor(((mouse_position[1] - center_y) / (
+                    self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
 
         area_x_1 = block_pos_x - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
         area_x_2 = block_pos_x + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
@@ -291,17 +303,20 @@ class World:
                         chunk_pos_x -= self.width
 
                     if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
-                        chunq.blocks[block_x % self.general_chunk_size][
-                            block_y % self.general_chunk_size].alternate_colour = (255, 50, 50)
+                        for bloq in chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size]:
+                            bloq.alternate_colour = (255, 50, 50)
                         if self.tool_active:
                             if self.tool_mode == 0:
                                 chunq.blocks[block_x % self.general_chunk_size][
-                                    block_y % self.general_chunk_size].dismantle(self.player.mining_device, tickrate)
+                                    block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
+                                    self.player.mining_device,
+                                    tickrate)
                             elif self.tool_mode == 1:
                                 chunq.blocks[block_x % self.general_chunk_size][
-                                    block_y % self.general_chunk_size].place((random.randint(0, 123),
-                                                                              random.randint(0, 255),
-                                                                              random.randint(0, 255)),
-                                                                             "Test Block",
-                                                                             "This is a test description",
-                                                                             1)
+                                    block_y % self.general_chunk_size][self.player.mining_device.mode].place(
+                                    (random.randint(0, 123),
+                                     random.randint(0, 255),
+                                     random.randint(0, 255)),
+                                    "Test Block",
+                                    "This is a test description",
+                                    1)

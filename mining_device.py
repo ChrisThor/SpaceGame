@@ -3,3 +3,4 @@ class MiningDevice:
         self.size = size
         self.original_size = size
         self.mining_speed = speed
+        self.mode = 0
