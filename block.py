@@ -11,9 +11,7 @@ class Block:
                  description="This is a test description",
                  solid=True,
                  hardness=1,
-                 brightness=1):
-        if brightness > 1:
-            brightness = 1
+                 max_brightness=1):
         self.position = position
         self.chunk = chunk
         self.colour = colour
@@ -25,13 +23,16 @@ class Block:
         self.solid = solid
         self.hardness = hardness
         self.size = size
-        self.brightness = brightness
+        self.brightness = 0
+        self.max_brightness = max_brightness
 
     def dismantle(self, mining_device, tickrate):
         if self.hardness > 0:
             self.hardness -= mining_device.mining_speed * tickrate
+            return False
         else:
             self.solid = False
+            return True
 
     def place(self, colour, name, description, hardness):
         if not self.solid:

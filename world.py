@@ -15,6 +15,8 @@ class World:
         for i in range(int(-width / 2), int(width / 2)):
             for j in range(-8, 8):
                 self.chunks.append(chunk.Chunk(vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
+        self.all_blocks = self.get_all_blocks()
+        self.calculate_light(self.chunks)
         self.player = player.Player()
         self.active_chunks = []
         self.move_left = False
@@ -24,6 +26,14 @@ class World:
         self.mouse_position = None
         self.player_direction = 0
         self.gravity = 1
+
+    def get_all_blocks(self):
+        all_blocks = {}
+        for chunx in self.chunks:
+            for block_line in chunx.blocks:
+                for block in block_line:
+                    all_blocks[f"{block[0].position.x_value}_{block[0].position.y_value}"] = block
+        return all_blocks
 
     def access_surface(self, background, center_x, center_y, zoom_factor, tickrate):
         running = True
@@ -108,7 +118,6 @@ class World:
             self.player.position.y_value = round(self.player.position.y_value)
 
     def get_active_chunks(self):
-        self.active_chunks = []
         if self.player.position.x_value < -self.width / 2 * self.general_chunk_size:
             self.player.position.x_value += self.width * self.general_chunk_size
         elif self.player.position.x_value >= self.width / 2 * self.general_chunk_size:
@@ -117,23 +126,28 @@ class World:
         chunk_pos_x = math.floor((self.player.position.x_value + 7) / self.general_chunk_size)
         chunk_pos_y = math.floor((self.player.position.y_value + 7) / self.general_chunk_size)
 
-        neg_val_x = -4
-        pos_val_x = 3
-        neg_val_y = -3
-        pos_val_y = 2
-        for chunq in self.chunks:
-            if chunk_pos_y + neg_val_y < chunq.position.y_value < chunk_pos_y + pos_val_y:
-                if chunk_pos_x + neg_val_x < chunq.position.x_value < chunk_pos_x + pos_val_x:
-                    chunq.block_offset = None
-                    self.active_chunks.append(chunq)
-                elif chunk_pos_x + neg_val_x < -self.width / 2:
-                    if chunk_pos_x + self.width + neg_val_x < chunq.position.x_value < self.width / 2:
-                        chunq.block_offset = -self.width * self.general_chunk_size
+        if chunk_pos_x != self.player.chunk_x or chunk_pos_y != self.player.chunk_y:
+            self.active_chunks = []
+            self.player.chunk_x = chunk_pos_x
+            self.player.chunk_y = chunk_pos_y
+
+            neg_val_x = -4
+            pos_val_x = 3
+            neg_val_y = -3
+            pos_val_y = 2
+            for chunq in self.chunks:
+                if chunk_pos_y + neg_val_y < chunq.position.y_value < chunk_pos_y + pos_val_y:
+                    if chunk_pos_x + neg_val_x < chunq.position.x_value < chunk_pos_x + pos_val_x:
+                        chunq.block_offset = None
                         self.active_chunks.append(chunq)
-                elif chunk_pos_x + pos_val_x > self.width / 2:
-                    if -self.width / 2 <= chunq.position.x_value < chunk_pos_x - self.width + pos_val_x:
-                        chunq.block_offset = self.width * self.general_chunk_size
-                        self.active_chunks.append(chunq)
+                    elif chunk_pos_x + neg_val_x < -self.width / 2:
+                        if chunk_pos_x + self.width + neg_val_x < chunq.position.x_value < self.width / 2:
+                            chunq.block_offset = -self.width * self.general_chunk_size
+                            self.active_chunks.append(chunq)
+                    elif chunk_pos_x + pos_val_x > self.width / 2:
+                        if -self.width / 2 <= chunq.position.x_value < chunk_pos_x - self.width + pos_val_x:
+                            chunq.block_offset = self.width * self.general_chunk_size
+                            self.active_chunks.append(chunq)
 
     def apply_speed(self, tickrate):
         self.player.position += self.player.speed * tickrate
@@ -308,10 +322,11 @@ class World:
                             bloq.alternate_colour = (255, 50, 50)
                         if self.tool_active:
                             if self.tool_mode == 0:
-                                chunq.blocks[block_x % self.general_chunk_size][
-                                    block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
-                                    self.player.mining_device,
-                                    tickrate)
+                                if chunq.blocks[block_x % self.general_chunk_size][
+                                        block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
+                                        self.player.mining_device,
+                                        tickrate):
+                                    self.calculate_light(self.active_chunks)
                             elif self.tool_mode == 1:
                                 chunq.blocks[block_x % self.general_chunk_size][
                                     block_y % self.general_chunk_size][self.player.mining_device.mode].place(
@@ -321,3 +336,27 @@ class World:
                                     "Test Block",
                                     "This is a test description",
                                     1)
+                                self.calculate_light(self.active_chunks)
+
+    def calculate_light(self, chunks):
+        max_light_distance = 8
+        for chunq in chunks:
+            for block_line in chunq.blocks:
+                for block in block_line:
+                    if not block[0].solid and not block[1].solid:
+                        for x in range(-max_light_distance, max_light_distance + 1):
+                            for y in range(-max_light_distance, max_light_distance + 1):
+                                if math.sqrt(x**2 + y**2) <= max_light_distance:
+                                    try:
+                                        blocks = self.all_blocks[f"{block[0].position.x_value + x}_{block[0].position.y_value + y}"]
+                                    except KeyError:
+                                        continue
+                                    if blocks is not None:
+                                        for b in blocks:
+                                            try:
+                                                brightness = 1 - (b.position - block[0].position).get_length() / max_light_distance
+                                            except ZeroDivisionError:
+                                                brightness = 1
+                                            if b.brightness < brightness:
+                                                b.brightness = brightness
+        # a:y=sin(x)(1)/(tan(y)) (1-x^(2))0.02

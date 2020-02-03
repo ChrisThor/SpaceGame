@@ -8,6 +8,8 @@ class Player:
     def __init__(self, position=vector.Vector(8, 0)):
         self.position = position
         self.speed = vector.Vector()
+        self.chunk_x = 11111111
+        self.chunk_y = 11111111
         self.height = 4
         self.width = 2
         self.jumps = 1
@@ -66,9 +68,9 @@ class Player:
         else:
             direc = 1
         if not self.check_top_blocks(tickrate, 0):
-            required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)
+            required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)[0]
             if required_block is not None and required_block.solid:
-                collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)
+                collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)[0]
                 if collide_block_corner is not None and not collide_block_corner.solid:
                     self.position.y_value -= 1.0
                     self.position.x_value += direction * tickrate

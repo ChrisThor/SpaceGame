@@ -31,7 +31,7 @@ class Chunk:
                                                colour=(
                                                random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
                                                solid=solid,
-                                               brightness=0.4)
+                                               max_brightness=0.4)
                 buffer.append([foreground_block, background_block])
             self.blocks.append(buffer)
 
@@ -62,8 +62,9 @@ class Chunk:
                 center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
         if b.alternate_colour is None:
             pygame.draw.rect(background,
-                             (b.colour[0] * b.brightness, b.colour[1] * b.brightness,
-                              b.colour[2] * b.brightness),
+                             (b.colour[0] * b.brightness * b.max_brightness,
+                              b.colour[1] * b.brightness * b.max_brightness,
+                              b.colour[2] * b.brightness * b.max_brightness),
                              (pos_x_on_screen, pos_y_on_screen,
                               b.size * zoom_factor, b.size * zoom_factor))
         else:
@@ -79,7 +80,7 @@ class Chunk:
             chunk_y = math.floor((bloq.position.y_value + y_offset) / self.size)
             if self.position.x_value == chunk_x and self.position.y_value == chunk_y:
                 return self.blocks[(bloq.position.x_value + x_offset) % self.size][
-                    (bloq.position.y_value + y_offset) % self.size][0]
+                    (bloq.position.y_value + y_offset) % self.size]
             else:
                 for chunk in active_chunks:
                     if chunk.position.x_value == chunk_x and chunk.position.y_value == chunk_y:
