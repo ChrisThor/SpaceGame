@@ -41,6 +41,8 @@ class Block:
             self.name = name
             self.description = description
             self.hardness = hardness
+            return True
+        return False
 
 
 class AirBlock(Block):

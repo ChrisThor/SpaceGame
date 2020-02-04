@@ -16,6 +16,7 @@ class World:
             for j in range(-8, 8):
                 self.chunks.append(chunk.Chunk(vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
         self.all_blocks = self.get_all_blocks()
+        self.max_light_distance = 8
         self.calculate_world_light(self.chunks)
         self.player = player.Player()
         self.active_chunks = []
@@ -331,32 +332,32 @@ class World:
                                     update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                    [block_y % self.general_chunk_size])
                             elif self.tool_mode == 1:
-                                chunq.blocks[block_x % self.general_chunk_size][
-                                    block_y % self.general_chunk_size][self.player.mining_device.mode].place(
-                                    (random.randint(0, 123),
-                                     random.randint(0, 255),
-                                     random.randint(0, 255)),
-                                    "Test Block",
-                                    "This is a test description",
-                                    1)
-                                update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
-                                                               [block_y % self.general_chunk_size])
-        self.update_light_around_block(update_light_for_blocks, 8)
+                                if chunq.blocks[block_x % self.general_chunk_size][
+                                        block_y % self.general_chunk_size][self.player.mining_device.mode].place(
+                                        (random.randint(0, 123),
+                                         random.randint(0, 255),
+                                         random.randint(0, 255)),
+                                        "Test Block",
+                                        "This is a test description",
+                                        1):
+                                    update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
+                                                                   [block_y % self.general_chunk_size])
+        self.update_light_around_block(update_light_for_blocks)
 
     def calculate_world_light(self, chunks):
-        max_light_distance = 8
         for chunq in chunks:
             for block_line in chunq.blocks:
                 for block in block_line:
-                    self.calc_light_around_block(block, max_light_distance)
+                    if block[0].solid or block[1].solid:
+                        self.calc_light_around_block(block)
         # a:y=sin(x)(1)/(tan(y)) (1-x^(2))0.02
 
-    def calc_light_around_block(self, block, max_light_distance):
+    def calc_light_around_block(self, block):
         block[0].brightness = 0
         block[1].brightness = 0
-        for x in range(-max_light_distance, max_light_distance + 1):
-            for y in range(-max_light_distance, max_light_distance + 1):
-                if math.sqrt(x ** 2 + y ** 2) <= max_light_distance:
+        for x in range(-self.max_light_distance, self.max_light_distance + 1):
+            for y in range(-self.max_light_distance, self.max_light_distance + 1):
+                if math.sqrt(x ** 2 + y ** 2) <= self.max_light_distance:
                     try:
                         blocks = self.all_blocks[f"{block[0].position.x_value + x}_{block[0].position.y_value + y}"]
                     except KeyError:
@@ -364,7 +365,8 @@ class World:
                     if blocks is not None:
                         if not blocks[0].solid and not blocks[1].solid:
                             try:
-                                brightness = 1 - (block[0].position - blocks[0].position).get_length() / max_light_distance
+                                brightness = \
+                                    1 - (block[0].position - blocks[0].position).get_length() / self.max_light_distance
                             except ZeroDivisionError:
                                 brightness = 1
                             if block[0].brightness < brightness:
@@ -372,14 +374,14 @@ class World:
                             if block[1].brightness < brightness:
                                 block[1].brightness = brightness
 
-    def update_light_around_block(self, block_list, max_light_distance):
-        for block in block_list:
-            for x in range(-max_light_distance, max_light_distance + 1):
-                for y in range(-max_light_distance, max_light_distance + 1):
-                    if math.sqrt(x ** 2 + y ** 2) <= max_light_distance:
-                        try:
+    def update_light_around_block(self, block_list):
+        for x in range(-self.max_light_distance, self.max_light_distance + 1):
+            for y in range(-self.max_light_distance, self.max_light_distance + 1):
+                if math.sqrt(x ** 2 + y ** 2) <= self.max_light_distance:
+                    try:
+                        for block in block_list:
                             blocks = self.all_blocks[f"{block[0].position.x_value + x}_{block[0].position.y_value + y}"]
-                        except KeyError:
-                            continue
-                        if blocks is not None and (blocks[0].solid or blocks[1].solid):
-                            self.calc_light_around_block(blocks, max_light_distance)
+                            if blocks is not None and (blocks[0].solid or blocks[1].solid):
+                                self.calc_light_around_block(blocks)
+                    except KeyError:
+                        continue
