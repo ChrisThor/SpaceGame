@@ -187,26 +187,7 @@ class World:
                 if len(self.player.top_blocks) == 3:
                     break
         if self.player.speed.y_value >= 0:
-            for chunq in self.active_chunks:
-                if chunq.position.x_value == chunk_pos_x and chunq.position.y_value == chunk_pos_y:
-                    for block_line in chunq.blocks:
-                        for block in block_line:
-                            block = block[0]
-                            # block.alternate_colour = (245, 245, 245)
-                            relative_distance_to_player = block.position - self.player.position
-                            if -2 < relative_distance_to_player.x_value < 1 and \
-                                    relative_distance_to_player.y_value >= 0:
-                                if block.solid:
-                                    block.alternate_colour = (255, 0, 255)
-                                    self.player.bottom_blocks.append(block)
-                                    break
-                        if len(self.player.bottom_blocks) == 3:
-                            break
-                            pass
-                    if len(self.player.bottom_blocks) == 0:
-                        chunk_pos_y += 1
-                    else:
-                        break
+            self.get_lower_collision_blocks(chunk_pos_x, chunk_pos_y)
 
             chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
         a_a = math.floor((self.player.position.x_value - self.player.width) / self.general_chunk_size)
@@ -277,6 +258,43 @@ class World:
                 self.sideways_check(chunk6)
         except AttributeError:
             pass
+
+    def get_lower_collision_blocks(self, chunk_pos_x, chunk_pos_y):
+        self.get_lower_blocks_from_chunk(chunk_pos_x, chunk_pos_y)
+        if len(self.player.bottom_blocks) != 3:
+            new_chunk_pos_x = math.floor((self.player.position.x_value - 2) / self.general_chunk_size)
+            # chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
+            if new_chunk_pos_x != chunk_pos_x:
+                self.get_lower_blocks_from_chunk(new_chunk_pos_x, chunk_pos_y)
+            else:
+                new_chunk_pos_x = math.floor((self.player.position.x_value + 2) / self.general_chunk_size)
+                if new_chunk_pos_x != chunk_pos_x:
+                    self.get_lower_blocks_from_chunk(new_chunk_pos_x, chunk_pos_y)
+
+    def get_lower_blocks_from_chunk(self, chunk_pos_x, chunk_pos_y):
+        new_blocks = []
+        for chunq in self.active_chunks:
+            if chunq.position.x_value == chunk_pos_x and chunq.position.y_value == chunk_pos_y:
+                for block_line in chunq.blocks:
+                    for block in block_line:
+                        block = block[0]
+                        # block.alternate_colour = (245, 245, 245)
+                        relative_distance_to_player = block.position - self.player.position
+                        if -2 < relative_distance_to_player.x_value < 1 and \
+                                relative_distance_to_player.y_value >= 0:
+                            if block.solid:
+                                block.alternate_colour = (255, 0, 255)
+                                new_blocks.append(block)
+                                break
+                    if len(new_blocks) + len(self.player.bottom_blocks) == 3:
+                        break
+                        pass
+                if len(new_blocks) == 0:
+                    chunk_pos_y += 1
+                else:
+                    break
+        for bqwehejwhrk in new_blocks:
+            self.player.bottom_blocks.append(bqwehejwhrk)
 
     def sideways_check(self, chanq):
         for block_line in chanq.blocks:
