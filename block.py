@@ -30,9 +30,11 @@ class Block:
         if self.hardness > 0:
             self.hardness -= mining_device.mining_speed * tickrate
             return False
-        else:
+        elif self.solid:
             self.solid = False
             return True
+        else:
+            return False
 
     def place(self, colour, name, description, hardness):
         if not self.solid:

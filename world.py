@@ -375,13 +375,15 @@ class World:
                                 block[1].brightness = brightness
 
     def update_light_around_block(self, block_list):
+        updated_blocks = []
         for x in range(-self.max_light_distance, self.max_light_distance + 1):
             for y in range(-self.max_light_distance, self.max_light_distance + 1):
                 if math.sqrt(x ** 2 + y ** 2) <= self.max_light_distance:
-                    try:
-                        for block in block_list:
+                    for block in block_list:
+                        try:
                             blocks = self.all_blocks[f"{block[0].position.x_value + x}_{block[0].position.y_value + y}"]
-                            if blocks is not None and (blocks[0].solid or blocks[1].solid):
+                            if blocks is not None and (blocks[0].solid or blocks[1].solid) and blocks not in updated_blocks:
                                 self.calc_light_around_block(blocks)
-                    except KeyError:
-                        continue
+                                updated_blocks.append(blocks)
+                        except KeyError:
+                            continue
