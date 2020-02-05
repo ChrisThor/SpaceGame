@@ -7,13 +7,13 @@ import math
 
 
 class World:
-    def __init__(self, width):
+    def __init__(self, width, height):
         self.chunks = []
         self.general_block_size = 8
         self.general_chunk_size = 16
         self.width = width
         for i in range(int(-width / 2), int(width / 2)):
-            for j in range(-8, 8):
+            for j in range(int(-height / 2), int(height / 2)):
                 self.chunks.append(chunk.Chunk(vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
         self.all_blocks = self.get_all_blocks()
         self.max_light_distance = 8
