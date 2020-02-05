@@ -9,13 +9,14 @@ import math
 class World:
     def __init__(self, width, height, background, screen):
         self.chunks = []
+        self.loading_percentage = -1
         self.general_block_size = 8
         self.general_chunk_size = 16
         self.width = width
         self.generate_chunks(height, width, background, screen)
         self.all_blocks = self.get_all_blocks()
         self.max_light_distance = 8
-        self.calculate_world_light(self.chunks, background, screen, height * width)
+        self.calculate_world_light(background, screen, height * width)
         self.player = player.Player()
         self.active_chunks = []
         self.move_left = False
@@ -33,21 +34,23 @@ class World:
             for j in range(int(-height / 2), int(height / 2)):
                 self.chunks.append(chunk.Chunk(vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
                 value += 1
-                self.display_loading_text(screen, background, "Generating World... ", round(value / max_value * 100))
+                self.display_loading_text(screen, background, "Generating World...", round(value / max_value * 100))
 
     def display_loading_text(self, screen, background, msg, percentage):
-        font = pygame.font.SysFont("Rockwell Condensed", 50)
-        text = font.render(f"{msg} {percentage}%", True, (255, 255, 0))
-        text = text.convert_alpha()
-        screen.blit(background, (0, 0))
-        screen.blit(text, (200, 200))
-        pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit("Closed while loading")
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+        if percentage != self.loading_percentage:
+            self.loading_percentage = percentage
+            font = pygame.font.SysFont("Courier New", 50, True, True)
+            text = font.render(f"{msg} {percentage}%", True, (255, 255, 0))
+            text = text.convert_alpha()
+            screen.blit(background, (0, 0))
+            screen.blit(text, (200, 200))
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     exit("Closed while loading")
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        exit("Closed while loading")
 
     def get_all_blocks(self):
         all_blocks = {}
@@ -388,15 +391,16 @@ class World:
                                                                    [block_y % self.general_chunk_size])
         self.update_light_around_block(update_light_for_blocks)
 
-    def calculate_world_light(self, chunks, background, screen, max_value):
+    def calculate_world_light(self, background, screen, max_value):
         value = 0
-        for chunq in chunks:
+        self.display_loading_text(screen, background, "Calculating light...", value)
+        for chunq in self.chunks:
             for block_line in chunq.blocks:
                 for block in block_line:
                     if block[0].solid or block[1].solid:
                         self.calc_light_around_block(block)
             value += 1
-            self.display_loading_text(screen, background, "Calculating light... ", round(value / max_value * 100))
+            self.display_loading_text(screen, background, "Calculating light...", round(value / max_value * 100))
         # a:y=sin(x)(1)/(tan(y)) (1-x^(2))0.02
 
     def calc_light_around_block(self, block):
