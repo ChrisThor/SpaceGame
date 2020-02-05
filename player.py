@@ -68,10 +68,10 @@ class Player:
         else:
             direc = 1
         if not self.check_top_blocks(tickrate, 0):
-            required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)[0]
-            if required_block is not None and required_block.solid:
-                collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)[0]
-                if collide_block_corner is not None and not collide_block_corner.solid:
+            required_block = block.chunk.get_block_relative_to_block(block, active_chunks, x_offset=-direc, y_offset=1)
+            if required_block is not None and required_block[0].solid:
+                collide_block_corner = block.chunk.get_block_relative_to_block(block, active_chunks, y_offset=-4)
+                if collide_block_corner is not None and not collide_block_corner[0].solid:
                     self.position.y_value -= 1.0
                     self.position.x_value += direction * tickrate
                     return True

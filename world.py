@@ -171,21 +171,22 @@ class World:
         # print(f"{chunk_pos_x},{chunk_pos_y}")
         if self.player.speed.y_value <= 0:
             top_chunks = self.get_chunks_above_position(chunk_pos_x, chunk_pos_y)
-            for i in range(len(top_chunks) - 1, -1, -1):
-                chunk_ = top_chunks[i]
-                for block_line in chunk_.blocks:
-                    for j in range(len(block_line) - 1, -1, -1):
-                        block = block_line[j][0]
-                        relative_distance_to_player = block.position - self.player.position
-                        if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
-                                -self.player.height > relative_distance_to_player.y_value:
-                            block.alternate_colour = (123, 123, 123)
-                            self.player.top_blocks.append(block)
+            if top_chunks is not None:
+                for i in range(len(top_chunks) - 1, -1, -1):
+                    chunk_ = top_chunks[i]
+                    for block_line in chunk_.blocks:
+                        for j in range(len(block_line) - 1, -1, -1):
+                            block = block_line[j][0]
+                            relative_distance_to_player = block.position - self.player.position
+                            if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
+                                    -self.player.height > relative_distance_to_player.y_value:
+                                block.alternate_colour = (123, 123, 123)
+                                self.player.top_blocks.append(block)
+                                break
+                        if len(self.player.top_blocks) == 3:
                             break
                     if len(self.player.top_blocks) == 3:
                         break
-                if len(self.player.top_blocks) == 3:
-                    break
         if self.player.speed.y_value >= 0:
             self.get_lower_collision_blocks(chunk_pos_x, chunk_pos_y)
 
