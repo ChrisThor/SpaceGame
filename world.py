@@ -155,11 +155,15 @@ class World:
 
     def get_chunks_above_position(self, chunk_pos_x, chunk_pos_y):
         top_chunks = []
+        rows = 0
         for chunk_ in self.active_chunks:
-            if chunk_.position.x_value == chunk_pos_x:
+            if chunk_pos_x - 1 <= chunk_.position.x_value <= chunk_pos_x + 1 and chunk_pos_y - 1 <= chunk_.position.y_value <= chunk_pos_y:
                 top_chunks.append(chunk_)
                 if chunk_.position.y_value == chunk_pos_y:
-                    return top_chunks
+                    rows += 1
+                    if rows == 3:
+                        return top_chunks
+        return top_chunks
 
     def get_collision_blocks(self):
         chunk_pos_x = math.floor(self.player.position.x_value / self.general_chunk_size)
