@@ -16,8 +16,8 @@ class World:
         self.generate_chunks(height, width, background, screen)
         self.all_blocks = self.get_all_blocks()
         self.max_light_distance = 8
-        self.calculate_world_light(background, screen, height * width)
         self.player = player.Player()
+        self.calculate_world_light(background, screen, height * width)
         self.active_chunks = []
         self.move_left = False
         self.move_right = False
@@ -39,11 +39,15 @@ class World:
     def display_loading_text(self, screen, background, msg, percentage):
         if percentage != self.loading_percentage:
             self.loading_percentage = percentage
-            font = pygame.font.SysFont("Courier New", 50, True, True)
+            headline = pygame.font.Font("fonts/Roboto_Mono/RobotoMono-BoldItalic.ttf", 100)
+            font = pygame.font.Font("fonts/Roboto_Mono/RobotoMono-LightItalic.ttf", 50)
+            headline_text = headline.render("> STARBOUNCE <", True, (255, 255, 0))
             text = font.render(f"{msg} {percentage}%", True, (255, 255, 0))
+            headline_text = headline_text.convert_alpha()
             text = text.convert_alpha()
             screen.blit(background, (0, 0))
             screen.blit(text, (200, 200))
+            screen.blit(headline_text, (200, 100))
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -393,14 +397,14 @@ class World:
 
     def calculate_world_light(self, background, screen, max_value):
         value = 0
-        self.display_loading_text(screen, background, "Calculating light...", value)
+        self.display_loading_text(screen, background, "Calculating Light...", value)
         for chunq in self.chunks:
             for block_line in chunq.blocks:
                 for block in block_line:
                     if block[0].solid or block[1].solid:
                         self.calc_light_around_block(block)
             value += 1
-            self.display_loading_text(screen, background, "Calculating light...", round(value / max_value * 100))
+            self.display_loading_text(screen, background, "Calculating Light...", round(value / max_value * 100))
         # a:y=sin(x)(1)/(tan(y)) (1-x^(2))0.02
 
     def calc_light_around_block(self, block):
