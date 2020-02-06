@@ -43,7 +43,7 @@ class Chunk:
                     if bloq[0].solid:
                         bloq[0].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
 
-    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player):
+    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour):
         if self.state != 2:
             if self.state == 0:
                 for block_line in self.blocks:
@@ -51,7 +51,7 @@ class Chunk:
                         if bloq[1].solid and not bloq[0].solid:
                             bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
             else:
-                self.draw_black_chunk(background, center_x, center_y, player, zoom_factor)
+                self.draw_black_chunk(background, center_x, center_y, player, zoom_factor, colour)
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
         try:
@@ -67,7 +67,7 @@ class Chunk:
         except IndexError:
             return None
 
-    def draw_black_chunk(self, background, center_x, center_y, player, zoom_factor):
+    def draw_black_chunk(self, background, center_x, center_y, player, zoom_factor, colour):
         block_size = self.blocks[0][0][0].size
         if self.block_offset is None:
             relative_distance_to_player = (self.position * self.size - player.position) * zoom_factor * block_size
@@ -82,6 +82,6 @@ class Chunk:
             pos_y_on_screen = int(
                 center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * block_size)
         pygame.draw.rect(background,
-                         (0, 255, 255),
+                         colour,
                          (pos_x_on_screen, pos_y_on_screen,
                           self.size * block_size * zoom_factor, self.size * block_size * zoom_factor))

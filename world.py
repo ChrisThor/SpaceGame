@@ -9,6 +9,7 @@ import math
 class World:
     def __init__(self, width, height, background, screen):
         self.chunks = []
+        self.black_chunk_colour = (0, 0, 0)
         self.loading_percentage = -1
         self.general_block_size = 8
         self.general_chunk_size = 16
@@ -26,6 +27,16 @@ class World:
         self.mouse_position = None
         self.player_direction = 0
         self.gravity = 1
+
+    def start_debug_mode(self):
+        self.player.bottom_block_colour = (255, 0, 255)
+        self.player.side_block_colour = (255, 255, 0)
+        self.black_chunk_colour = (0, 255, 255)
+
+    def stop_debug_mode(self):
+        self.player.bottom_block_colour = None
+        self.player.side_block_colour = None
+        self.black_chunk_colour = (0, 0, 0)
 
     def generate_chunks(self, height, width, background, screen):
         value = 0
@@ -81,6 +92,11 @@ class World:
                     zoom_factor *= 2
                 elif event.key == pygame.K_F1:
                     zoom_factor /= 2
+                elif event.key == pygame.K_F3:
+                    if self.black_chunk_colour == (0, 0, 0):
+                        self.start_debug_mode()
+                    else:
+                        self.stop_debug_mode()
                 elif event.key == pygame.K_SPACE:
                     if self.player.speed.y_value == 0 and self.player.jumps > 0 and \
                             not self.player.check_top_blocks(tickrate, 50):
@@ -126,7 +142,7 @@ class World:
         self.apply_speed(tickrate)
 
         for chunq in self.active_chunks:
-            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player)
+            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
 
         self.player.draw_player(background, center_x, center_y, zoom_factor * self.general_block_size)
         for chunq in self.active_chunks:
@@ -212,7 +228,8 @@ class World:
                             relative_distance_to_player = block.position - self.player.position
                             if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
                                     -self.player.height > relative_distance_to_player.y_value:
-                                block.alternate_colour = (123, 123, 123)
+                                if self.player.bottom_block_colour is not None:
+                                    block.alternate_colour = self.player.bottom_block_colour
                                 self.player.top_blocks.append(block)
                                 break
                         if len(self.player.top_blocks) == 3:
@@ -316,7 +333,8 @@ class World:
                         if -2 < relative_distance_to_player.x_value < 1 and \
                                 relative_distance_to_player.y_value >= 0:
                             if block.solid:
-                                block.alternate_colour = (255, 0, 255)
+                                if self.player.bottom_block_colour is not None:
+                                    block.alternate_colour = self.player.bottom_block_colour
                                 new_blocks.append(block)
                                 break
                     if len(new_blocks) + len(self.player.bottom_blocks) == 3:
@@ -337,11 +355,11 @@ class World:
                 relative_distance_to_player = block.position - self.player.position
                 if block.solid and -3 < relative_distance_to_player.x_value < -self.player.width / 2 and \
                         -5 < relative_distance_to_player.y_value < 0:
-                    block.alternate_colour = (255, 255, 0)
+                    block.alternate_colour = self.player.side_block_colour
                     self.player.left_side_blocks.append(block)
                 elif block.solid and self.player.width / 2 <= relative_distance_to_player.x_value < 2 and \
                         -5 < relative_distance_to_player.y_value < 0:
-                    block.alternate_colour = (200, 200, 0)
+                    block.alternate_colour = self.player.side_block_colour
                     self.player.right_side_blocks.append(block)
 
     def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate):

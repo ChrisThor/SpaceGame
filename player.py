@@ -10,6 +10,8 @@ class Player:
         self.speed = vector.Vector()
         self.chunk_x = 11111111
         self.chunk_y = 11111111
+        self.side_block_colour = None
+        self.bottom_block_colour = None
         self.height = 4
         self.width = 2
         self.jumps = 1
