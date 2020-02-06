@@ -61,7 +61,7 @@ def draw_stars(static_stars, small_stars, big_stars, background, hope_ship, cent
 def main():
     pygame.init()
     print("\033[2J")
-    pygame.display.set_caption("SPAACE")
+    pygame.display.set_caption("STARBOUNCE")
 
     screen_height = 1000
     screen_width = 1800
@@ -300,9 +300,9 @@ def main():
             screen.blit(background, (0, 0))
             pygame.display.flip()
         if not paused:
-            pygame.display.set_caption(f"SPAACE fps: {fps} - playtime: {round(playtime, 2)}")
+            pygame.display.set_caption(f"STARBOUNCE fps: {fps} - playtime: {round(playtime, 2)}")
         else:
-            pygame.display.set_caption(f"SPAACE fps: {fps} - playtime: {round(playtime, 2)}  PAUSED")
+            pygame.display.set_caption(f"STARBOUNCE fps: {fps} - playtime: {round(playtime, 2)}  PAUSED")
             if particle_tick >= 1 / 3:
                 particle_tick = 0
 
