@@ -380,7 +380,11 @@ class World:
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
                                         self.player.mining_device,
                                         tickrate):
-                                    update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
+                                    if self.player.mining_device.mode == 1 and not chunq.blocks[block_x % self.general_chunk_size][
+                                            block_y % self.general_chunk_size][0].solid or self.player.mining_device.mode == 0 and \
+                                            not chunq.blocks[block_x % self.general_chunk_size][
+                                                block_y % self.general_chunk_size][1].solid:
+                                        update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                    [block_y % self.general_chunk_size])
                             elif self.tool_mode == 1:
                                 if chunq.blocks[block_x % self.general_chunk_size][
@@ -399,10 +403,15 @@ class World:
         value = 0
         self.display_loading_text(screen, background, "Calculating Light...", value)
         for chunq in self.chunks:
+            black_blocks = 0
             for block_line in chunq.blocks:
                 for block in block_line:
                     if block[0].solid or block[1].solid:
                         self.calc_light_around_block(block)
+                        if block[0].brightness == 0:
+                            black_blocks += 1
+            if black_blocks == chunq.size ** 2:
+                chunq.state = 1
             value += 1
             self.display_loading_text(screen, background, "Calculating Light...", round(value / max_value * 100))
         # a:y=sin(x)(1)/(tan(y)) (1-x^(2))0.02
@@ -431,6 +440,7 @@ class World:
 
     def update_light_around_block(self, block_list):
         updated_blocks = []
+        updated_chunks = []
         for x in range(-self.max_light_distance, self.max_light_distance + 1):
             for y in range(-self.max_light_distance, self.max_light_distance + 1):
                 if math.sqrt(x ** 2 + y ** 2) <= self.max_light_distance:
@@ -440,5 +450,21 @@ class World:
                             if blocks is not None and (blocks[0].solid or blocks[1].solid) and blocks not in updated_blocks:
                                 self.calc_light_around_block(blocks)
                                 updated_blocks.append(blocks)
+                                if blocks[0].chunk not in updated_chunks:
+                                    updated_chunks.append(blocks[0].chunk)
                         except KeyError:
                             continue
+        for chunq in updated_chunks:
+            next_chunk = False
+            for block_line in chunq.blocks:
+                for blocks in block_line:
+                    if blocks[0].brightness != 0:
+                        next_chunk = True
+                        break
+                if next_chunk:
+                    break
+            if next_chunk:
+                chunq.state = 0
+                continue
+            else:
+                chunq.state = 1

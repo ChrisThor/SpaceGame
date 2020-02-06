@@ -37,7 +37,7 @@ class Chunk:
             self.blocks.append(buffer)
 
     def draw_chunk_foreground(self, background, center_x, center_y, zoom_factor, player):
-        if self.state != 2:
+        if self.state == 0:
             for block_line in self.blocks:
                 for bloq in block_line:
                     if bloq[0].solid:
@@ -45,10 +45,13 @@ class Chunk:
 
     def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player):
         if self.state != 2:
-            for block_line in self.blocks:
-                for bloq in block_line:
-                    if bloq[1].solid and not bloq[0].solid:
-                        bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
+            if self.state == 0:
+                for block_line in self.blocks:
+                    for bloq in block_line:
+                        if bloq[1].solid and not bloq[0].solid:
+                            bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
+            else:
+                self.draw_black_chunk(background, center_x, center_y, player, zoom_factor)
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
         try:
@@ -63,3 +66,22 @@ class Chunk:
                         return chunk.get_block_relative_to_block(bloq, active_chunks, x_offset, y_offset)
         except IndexError:
             return None
+
+    def draw_black_chunk(self, background, center_x, center_y, player, zoom_factor):
+        block_size = self.blocks[0][0][0].size
+        if self.block_offset is None:
+            relative_distance_to_player = (self.position * self.size - player.position) * zoom_factor * block_size
+            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+            pos_y_on_screen = int(
+                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * block_size)
+        else:
+            position = self.position.copy()
+            position.x_value += self.block_offset / self.size
+            relative_distance_to_player = (position * self.size - player.position) * zoom_factor * block_size
+            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+            pos_y_on_screen = int(
+                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * block_size)
+        pygame.draw.rect(background,
+                         (0, 255, 255),
+                         (pos_x_on_screen, pos_y_on_screen,
+                          self.size * block_size * zoom_factor, self.size * block_size * zoom_factor))
