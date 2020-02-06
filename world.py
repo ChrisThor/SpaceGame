@@ -8,9 +8,11 @@ import math
 
 class World:
     def __init__(self, width, height, background, screen):
-        self.chunks = []
-        self.black_chunk_colour = (0, 0, 0)
         self.loading_percentage = -1
+        self.chunks = []
+        self.textures = {}
+        self.load_textures(screen, background)
+        self.black_chunk_colour = (0, 0, 0)
         self.general_block_size = 8
         self.general_chunk_size = 16
         self.width = width
@@ -38,12 +40,19 @@ class World:
         self.player.side_block_colour = None
         self.black_chunk_colour = (0, 0, 0)
 
+    def load_textures(self, screen, background):
+        self.display_loading_text(screen, background, "Loading Textures...", 0)
+        self.textures["test0"] = pygame.image.load("textures/blocks/test00.png")
+        self.display_loading_text(screen, background, "Loading Textures...", 0.5)
+        self.textures["test1"] = pygame.image.load("textures/blocks/test01.png")
+        self.display_loading_text(screen, background, "Loading Textures...", 1)
+
     def generate_chunks(self, height, width, background, screen):
         value = 0
         max_value = height * width
         for i in range(int(-width / 2), int(width / 2)):
             for j in range(int(-height / 2), int(height / 2)):
-                self.chunks.append(chunk.Chunk(vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
+                self.chunks.append(chunk.Chunk(self.textures, vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
                 value += 1
                 self.display_loading_text(screen, background, "Generating World...", round(value / max_value * 100))
 
@@ -403,7 +412,7 @@ class World:
                                             not chunq.blocks[block_x % self.general_chunk_size][
                                                 block_y % self.general_chunk_size][1].solid:
                                         update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
-                                                                   [block_y % self.general_chunk_size])
+                                                                       [block_y % self.general_chunk_size])
                             elif self.tool_mode == 1:
                                 if chunq.blocks[block_x % self.general_chunk_size][
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].place(
@@ -412,7 +421,8 @@ class World:
                                          random.randint(0, 255)),
                                         "Test Block",
                                         "This is a test description",
-                                        1):
+                                        1,
+                                        self.textures["test0"]):
                                     update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                    [block_y % self.general_chunk_size])
         self.update_light_around_block(update_light_for_blocks)

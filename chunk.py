@@ -6,7 +6,7 @@ import random
 
 
 class Chunk:
-    def __init__(self, position=vector.Vector(), size=16, block_size=8):
+    def __init__(self, textures, position=vector.Vector(), size=16, block_size=8):
         self.position = position
         self.block_offset = None
         self.blocks = []
@@ -22,6 +22,7 @@ class Chunk:
                                                              self.position.y_value * self.size + j),
                                                size=block_size,
                                                chunk=self,
+                                               texture=textures["test1"],
                                                colour=(
                                                random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
                                                solid=solid)
@@ -29,10 +30,11 @@ class Chunk:
                                                              self.position.y_value * self.size + j),
                                                size=block_size,
                                                chunk=self,
+                                               texture=textures["test1"],
                                                colour=(
                                                random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
                                                solid=solid,
-                                               max_brightness=0.4)
+                                               max_brightness=0.6)
                 buffer.append([foreground_block, background_block])
             self.blocks.append(buffer)
 

@@ -7,6 +7,7 @@ class Block:
                  position,
                  size,
                  chunk,
+                 texture,
                  colour=(123, 123, 123),
                  name="Test Block",
                  description="This is a test description",
@@ -15,6 +16,7 @@ class Block:
                  max_brightness=1):
         self.position = position
         self.chunk = chunk
+        self.texture = texture
         self.colour = colour
         self.alternate_colour = None
         self.name = name
@@ -26,6 +28,8 @@ class Block:
         self.size = size
         self.brightness = 0
         self.max_brightness = max_brightness
+        self.shade = pygame.Surface((int(self.size), int(self.size)))
+        self.old_zoom_factor = 0
 
     def dismantle(self, mining_device, tickrate):
         if self.hardness > 0:
@@ -33,17 +37,19 @@ class Block:
             return False
         elif self.solid:
             self.solid = False
+            self.texture = None
             return True
         else:
             return False
 
-    def place(self, colour, name, description, hardness):
+    def place(self, colour, name, description, hardness, texture):
         if not self.solid:
             self.solid = True
             self.colour = colour
             self.name = name
             self.description = description
             self.hardness = hardness
+            self.texture = texture
             return True
         return False
 
@@ -61,12 +67,18 @@ class Block:
             pos_y_on_screen = int(
                 center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * self.size)
         if self.alternate_colour is None:
-            pygame.draw.rect(background,
-                             (self.colour[0] * self.brightness * self.max_brightness,
-                              self.colour[1] * self.brightness * self.max_brightness,
-                              self.colour[2] * self.brightness * self.max_brightness),
-                             (pos_x_on_screen, pos_y_on_screen,
-                              self.size * zoom_factor, self.size * zoom_factor))
+            if self.brightness > 0:
+                background.blit(pygame.transform.scale(self.texture, (int(self.size * zoom_factor), int(self.size * zoom_factor))), (pos_x_on_screen, pos_y_on_screen))
+                if self.old_zoom_factor != zoom_factor:
+                    self.shade = pygame.Surface((int(self.size * zoom_factor), int(self.size * zoom_factor)))
+                self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
+                background.blit(self.shade, (pos_x_on_screen, pos_y_on_screen))
+            else:
+            # screen.blit(self.texture, (pos_x_on_screen, pos_y_on_screen))
+                pygame.draw.rect(background,
+                                 (0, 0, 0),
+                                 (pos_x_on_screen, pos_y_on_screen,
+                                  self.size * zoom_factor, self.size * zoom_factor))
         else:
             pygame.draw.rect(background,
                              self.alternate_colour,
