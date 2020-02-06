@@ -10,6 +10,7 @@ class Chunk:
         self.position = position
         self.block_offset = None
         self.blocks = []
+        self.state = 0
         self.size = size
         solid = True
         if position.y_value < 0:
@@ -36,43 +37,18 @@ class Chunk:
             self.blocks.append(buffer)
 
     def draw_chunk_foreground(self, background, center_x, center_y, zoom_factor, player):
-        for block_line in self.blocks:
-            for bloq in block_line:
-                if bloq[0].solid:
-                    self.draw_chunk(bloq[0], background, center_x, center_y, player, zoom_factor)
+        if self.state != 2:
+            for block_line in self.blocks:
+                for bloq in block_line:
+                    if bloq[0].solid:
+                        bloq[0].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
 
     def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player):
-        for block_line in self.blocks:
-            for bloq in block_line:
-                if bloq[1].solid and not bloq[0].solid:
-                    self.draw_chunk(bloq[1], background, center_x, center_y, player, zoom_factor)
-
-    def draw_chunk(self, b, background, center_x, center_y, player, zoom_factor):
-        if self.block_offset is None:
-            relative_distance_to_player = (b.position - player.position) * zoom_factor * b.size
-            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
-            pos_y_on_screen = int(
-                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
-        else:
-            position = b.position.copy()
-            position.x_value += self.block_offset
-            relative_distance_to_player = (position - player.position) * zoom_factor * b.size
-            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
-            pos_y_on_screen = int(
-                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * b.size)
-        if b.alternate_colour is None:
-            pygame.draw.rect(background,
-                             (b.colour[0] * b.brightness * b.max_brightness,
-                              b.colour[1] * b.brightness * b.max_brightness,
-                              b.colour[2] * b.brightness * b.max_brightness),
-                             (pos_x_on_screen, pos_y_on_screen,
-                              b.size * zoom_factor, b.size * zoom_factor))
-        else:
-            pygame.draw.rect(background,
-                             b.alternate_colour,
-                             (pos_x_on_screen, pos_y_on_screen,
-                              b.size * zoom_factor, b.size * zoom_factor))
-            b.alternate_colour = None
+        if self.state != 2:
+            for block_line in self.blocks:
+                for bloq in block_line:
+                    if bloq[1].solid and not bloq[0].solid:
+                        bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
         try:

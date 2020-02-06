@@ -1,3 +1,4 @@
+import pygame
 import random
 
 
@@ -45,6 +46,33 @@ class Block:
             self.hardness = hardness
             return True
         return False
+
+    def draw_block(self, background, center_x, center_y, player, zoom_factor, block_offset):
+        if block_offset is None:
+            relative_distance_to_player = (self.position - player.position) * zoom_factor * self.size
+            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+            pos_y_on_screen = int(
+                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * self.size)
+        else:
+            position = self.position.copy()
+            position.x_value += block_offset
+            relative_distance_to_player = (position - player.position) * zoom_factor * self.size
+            pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
+            pos_y_on_screen = int(
+                center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * self.size)
+        if self.alternate_colour is None:
+            pygame.draw.rect(background,
+                             (self.colour[0] * self.brightness * self.max_brightness,
+                              self.colour[1] * self.brightness * self.max_brightness,
+                              self.colour[2] * self.brightness * self.max_brightness),
+                             (pos_x_on_screen, pos_y_on_screen,
+                              self.size * zoom_factor, self.size * zoom_factor))
+        else:
+            pygame.draw.rect(background,
+                             self.alternate_colour,
+                             (pos_x_on_screen, pos_y_on_screen,
+                              self.size * zoom_factor, self.size * zoom_factor))
+            self.alternate_colour = None
 
 
 class AirBlock(Block):
