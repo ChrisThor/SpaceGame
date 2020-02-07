@@ -2,6 +2,7 @@ import pygame
 import chunk
 import player
 import vector
+import noise_generator
 import random
 import math
 
@@ -20,6 +21,7 @@ class World:
         self.all_blocks = self.get_all_blocks()
         self.max_light_distance = 8
         self.player = player.Player()
+        self.set_player_position(height)
         self.calculate_world_light(background, screen, height * width)
         self.active_chunks = []
         self.move_left = False
@@ -29,6 +31,18 @@ class World:
         self.mouse_position = None
         self.player_direction = 0
         self.gravity = 1
+
+    def set_player_position(self, height):
+        y = None
+        for i in range(int(-height * self.general_chunk_size / 2), int(height * self.general_chunk_size / 2)):
+            for j in range(self.player.position.x_value - 1, self.player.position.x_value + 1):
+                block = self.all_blocks[f"{j}_{i}"][0]
+                if block.solid:
+                    if y is None:
+                        y = block.position.y_value
+                    elif y > block.position.y_value:
+                        y = block.position.y_value
+        self.player.position.y_value = y
 
     def start_debug_mode(self):
         self.player.bottom_block_colour = (255, 0, 255)
@@ -44,15 +58,18 @@ class World:
         self.display_loading_text(screen, background, "Loading Textures...", 0)
         self.textures["test0"] = pygame.image.load("textures/blocks/test00.png")
         self.display_loading_text(screen, background, "Loading Textures...", 0.5)
-        self.textures["test1"] = pygame.image.load("textures/blocks/test01.png")
+        self.textures["test1"] = pygame.image.load("textures/blocks/test02.png")
         self.display_loading_text(screen, background, "Loading Textures...", 1)
 
     def generate_chunks(self, height, width, background, screen):
         value = 0
+        world_information = noise_generator.get_terrain_information(random.randint(0, 2 ** 32 - 1), width * self.general_chunk_size)
         max_value = height * width
+        chunk_index = width
         for i in range(int(-width / 2), int(width / 2)):
+            chunk_index -= 1
             for j in range(int(-height / 2), int(height / 2)):
-                self.chunks.append(chunk.Chunk(self.textures, vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
+                self.chunks.append(chunk.Chunk(self.textures, world_information, chunk_index, vector.Vector(i, j), self.general_chunk_size, self.general_block_size))
                 value += 1
                 self.display_loading_text(screen, background, "Generating World...", round(value / max_value * 100))
 

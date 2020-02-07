@@ -5,8 +5,8 @@ import vector
 
 
 class Player:
-    def __init__(self, position=vector.Vector(8, 0)):
-        self.position = position
+    def __init__(self, position_x=8):
+        self.position = vector.Vector(position_x, 0)
         self.speed = vector.Vector()
         self.chunk_x = 11111111
         self.chunk_y = 11111111

@@ -8,6 +8,7 @@ class Block:
                  size,
                  chunk,
                  texture,
+                 block_information,
                  colour=(123, 123, 123),
                  name="Test Block",
                  description="This is a test description",
@@ -21,9 +22,13 @@ class Block:
         self.alternate_colour = None
         self.name = name
         self.description = description
+        if block_information * 20 > self.position.y_value:
+            self.solid = False
+        else:
+            self.solid = True
         # if random.randint(0, 1) == 0:
         #     solid = False
-        self.solid = solid
+        # self.solid = solid
         self.hardness = hardness
         self.size = size
         self.brightness = 0
