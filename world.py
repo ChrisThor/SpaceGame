@@ -322,7 +322,6 @@ class World:
         self.get_lower_blocks_from_chunk(chunk_pos_x, chunk_pos_y)
         if len(self.player.bottom_blocks) != 3:
             new_chunk_pos_x = math.floor((self.player.position.x_value - self.player.width) / self.general_chunk_size)
-            # chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
             if new_chunk_pos_x != chunk_pos_x:
                 self.get_lower_blocks_from_chunk(new_chunk_pos_x, chunk_pos_y)
             else:

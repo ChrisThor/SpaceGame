@@ -42,10 +42,8 @@ class Player:
                         if self.do_stair_movement(blcos[0], direction, tickrate, active_chunks):
                             return True
                         else:
-                            # self.position.x_value = math.ceil(self.position.x_value)
                             self.position.x_value = blcos[0].position.x_value - self.width / 2
                     else:
-                        # self.position.x_value = math.ceil(self.position.x_value)
                         self.position.x_value = blcos[0].position.x_value - self.width / 2
             else:
                 self.position.x_value += direction * tickrate
@@ -59,10 +57,8 @@ class Player:
                         if self.do_stair_movement(blcos[0], direction, tickrate, active_chunks):
                             return True
                         else:
-                            # self.position.x_value = math.floor(self.position.x_value)
                             self.position.x_value = blcos[0].position.x_value + 1 + self.width / 2
                     else:
-                        # self.position.x_value = math.floor(self.position.x_value)
                         self.position.x_value = blcos[0].position.x_value + 1 + self.width / 2
             else:
                 self.position.x_value += direction * tickrate
@@ -82,23 +78,6 @@ class Player:
                     self.position.x_value += direction * tickrate
                     return True
         return False
-
-        # if collide_block_corner is not None:
-        #     if not collide_block_corner.solid:
-        #         pass
-        # else:
-        #     chunk_x = math.floor(self.position.x_value / block.chunk.size)
-        #     chunk_y = math.floor((self.position.y_value - 4) / block.chunk.size)
-        #     for chunk in active_chunks:
-        #         if chunk.position.x_value == chunk_x and chunk.position.y_value == chunk_y:
-        #             collide_block_corner = chunk.get_block_relative_to_block(block.position, y_offset=-4)
-        #             if collide_block_corner is not None:
-        #                 if not collide_block_corner.solid:
-        #                     self.position.y_value -= 1.0
-        #                     self.position.x_value += direction * tickrate
-        #                     return True
-        #                 break
-        # return False
 
     def find_smallest_x_distance(self, blocks, positive):
         smallest_x_distance = None
