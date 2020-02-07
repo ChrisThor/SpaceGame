@@ -70,11 +70,13 @@ class Block:
             if self.brightness > 0:
                 background.blit(pygame.transform.scale(self.texture, (int(self.size * zoom_factor), int(self.size * zoom_factor))), (pos_x_on_screen, pos_y_on_screen))
                 if self.old_zoom_factor != zoom_factor:
+                    self.old_zoom_factor = zoom_factor
                     self.shade = pygame.Surface((int(self.size * zoom_factor), int(self.size * zoom_factor)))
-                self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
+                shade = -255 * self.brightness * self.max_brightness + 255
+                if self.shade.get_alpha() != shade:
+                    self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
                 background.blit(self.shade, (pos_x_on_screen, pos_y_on_screen))
             else:
-            # screen.blit(self.texture, (pos_x_on_screen, pos_y_on_screen))
                 pygame.draw.rect(background,
                                  (0, 0, 0),
                                  (pos_x_on_screen, pos_y_on_screen,
