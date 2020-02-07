@@ -235,8 +235,8 @@ class World:
                         for j in range(len(block_line) - 1, -1, -1):
                             block = block_line[j][0]
                             relative_distance_to_player = block.position - self.player.position
-                            if block.solid and -2 < relative_distance_to_player.x_value < 1 and \
-                                    -self.player.height > relative_distance_to_player.y_value:
+                            if block.solid and -self.player.width < relative_distance_to_player.x_value < self.player.width / 2 and \
+                                    -math.ceil(self.player.height) > relative_distance_to_player.y_value:
                                 if self.player.bottom_block_colour is not None:
                                     block.alternate_colour = self.player.bottom_block_colour
                                 self.player.top_blocks.append(block)
@@ -321,12 +321,12 @@ class World:
     def get_lower_collision_blocks(self, chunk_pos_x, chunk_pos_y):
         self.get_lower_blocks_from_chunk(chunk_pos_x, chunk_pos_y)
         if len(self.player.bottom_blocks) != 3:
-            new_chunk_pos_x = math.floor((self.player.position.x_value - 2) / self.general_chunk_size)
+            new_chunk_pos_x = math.floor((self.player.position.x_value - self.player.width) / self.general_chunk_size)
             # chunk_pos_y = math.floor(self.player.position.y_value / self.general_chunk_size)
             if new_chunk_pos_x != chunk_pos_x:
                 self.get_lower_blocks_from_chunk(new_chunk_pos_x, chunk_pos_y)
             else:
-                new_chunk_pos_x = math.floor((self.player.position.x_value + 2) / self.general_chunk_size)
+                new_chunk_pos_x = math.floor((self.player.position.x_value + self.player.width) / self.general_chunk_size)
                 if new_chunk_pos_x != chunk_pos_x:
                     self.get_lower_blocks_from_chunk(new_chunk_pos_x, chunk_pos_y)
 
@@ -339,7 +339,7 @@ class World:
                         block = block[0]
                         # block.alternate_colour = (245, 245, 245)
                         relative_distance_to_player = block.position - self.player.position
-                        if -2 < relative_distance_to_player.x_value < 1 and \
+                        if -self.player.width < relative_distance_to_player.x_value < self.player.width / 2 and \
                                 relative_distance_to_player.y_value >= 0:
                             if block.solid:
                                 if self.player.bottom_block_colour is not None:
@@ -362,7 +362,7 @@ class World:
                 block = block[0]
                 # block.alternate_colour = (255, 125, 12)
                 relative_distance_to_player = block.position - self.player.position
-                if block.solid and -3 < relative_distance_to_player.x_value < -self.player.width / 2 and \
+                if block.solid and -3 < relative_distance_to_player.x_value <= -self.player.width / 2 and \
                         -5 < relative_distance_to_player.y_value < 0:
                     block.alternate_colour = self.player.side_block_colour
                     self.player.left_side_blocks.append(block)

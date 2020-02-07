@@ -12,8 +12,8 @@ class Player:
         self.chunk_y = 11111111
         self.side_block_colour = None
         self.bottom_block_colour = None
-        self.height = 4
-        self.width = 2
+        self.height = 3.5
+        self.width = 1.75
         self.jumps = 1
         self.max_jumps = 1
         self.bottom_blocks = []
@@ -42,9 +42,11 @@ class Player:
                         if self.do_stair_movement(blcos[0], direction, tickrate, active_chunks):
                             return True
                         else:
-                            self.position.x_value = math.ceil(self.position.x_value)
+                            # self.position.x_value = math.ceil(self.position.x_value)
+                            self.position.x_value = blcos[0].position.x_value - self.width / 2
                     else:
-                        self.position.x_value = math.ceil(self.position.x_value)
+                        # self.position.x_value = math.ceil(self.position.x_value)
+                        self.position.x_value = blcos[0].position.x_value - self.width / 2
             else:
                 self.position.x_value += direction * tickrate
         else:
@@ -57,9 +59,11 @@ class Player:
                         if self.do_stair_movement(blcos[0], direction, tickrate, active_chunks):
                             return True
                         else:
-                            self.position.x_value = math.floor(self.position.x_value)
+                            # self.position.x_value = math.floor(self.position.x_value)
+                            self.position.x_value = blcos[0].position.x_value + 1 + self.width / 2
                     else:
-                        self.position.x_value = math.floor(self.position.x_value)
+                        # self.position.x_value = math.floor(self.position.x_value)
+                        self.position.x_value = blcos[0].position.x_value + 1 + self.width / 2
             else:
                 self.position.x_value += direction * tickrate
         return False
