@@ -158,11 +158,16 @@ class World:
         self.get_collision_blocks()
 
         if self.move_right:
+            self.player.flip_texture = False
             if self.player.move_player(5, tickrate, self.active_chunks):
                 self.get_collision_blocks()
         elif self.move_left:
+            self.player.flip_texture = True
             if self.player.move_player(-5, tickrate, self.active_chunks):
                 self.get_collision_blocks()
+        else:
+            self.player.current_texture = self.player.textures["standing"]
+            self.player.animation_state = 0
 
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
@@ -170,7 +175,7 @@ class World:
         for chunq in self.active_chunks:
             chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
 
-        self.player.draw_player(background, center_x, center_y, zoom_factor * self.general_block_size)
+        self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
         for chunq in self.active_chunks:
             chunq.draw_chunk_foreground(background, center_x, center_y, zoom_factor, self.player)
 

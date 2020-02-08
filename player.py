@@ -20,17 +20,66 @@ class Player:
         self.top_blocks = []
         self.left_side_blocks = []
         self.right_side_blocks = []
+        self.animation_state = 0
+        self.textures = {}
+        self.flip_texture = False
+        self.load_character_textures()
+        self.current_texture = self.textures["standing"]
         self.mining_device = mining_device.MiningDevice(2, 3)
 
-    def draw_player(self, background, center_x, center_y, zoom_factor):
-        pygame.draw.rect(background,
-                         (255, 255, 255),
-                         (center_x - self.width / 2 * zoom_factor,
-                          center_y - self.height / 2 * zoom_factor,
-                          self.width * zoom_factor,
-                          self.height * zoom_factor))
+    def load_character_textures(self):
+        self.textures["standing"] = pygame.image.load("textures/character/genvieve_standing.png")
+        self.textures["walking0"] = pygame.image.load("textures/character/genvieve_walking_0.png")
+        self.textures["walking1"] = pygame.image.load("textures/character/genvieve_walking_1.png")
+        self.textures["walking2"] = pygame.image.load("textures/character/genvieve_walking_2.png")
+        self.textures["walking3"] = pygame.image.load("textures/character/genvieve_walking_3.png")
+        self.textures["walking4"] = pygame.image.load("textures/character/genvieve_walking_4.png")
+        self.textures["walking5"] = pygame.image.load("textures/character/genvieve_walking_5.png")
+        self.textures["walking6"] = pygame.image.load("textures/character/genvieve_walking_6.png")
+        self.textures["walking7"] = pygame.image.load("textures/character/genvieve_walking_7.png")
+
+    def draw_player(self, background, center_x, center_y, zoom, block_size):
+        zoom_factor = zoom * block_size
+        # pygame.draw.rect(background,
+        #                  (255, 255, 255),
+        #                  (center_x - self.width / 2 * zoom_factor,
+        #                   center_y - self.height / 2 * zoom_factor,
+        #                   self.width * zoom_factor,
+        #                   self.height * zoom_factor))
+        size = self.current_texture.get_size()
+        x_offset = 1
+        if self.flip_texture:
+            texture = pygame.transform.flip(self.current_texture, True, False)
+            x_offset = 1.5
+        else:
+            texture = self.current_texture
+        background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))), (center_x - x_offset * zoom_factor,
+                          center_y - 2.5 * zoom_factor))
+
+    def set_animation_texture(self, tickrate):
+        self.animation_state += tickrate
+        if self.animation_state < 1 / 8:
+            self.current_texture = self.textures["walking0"]
+        elif self.animation_state < 2 / 8:
+            self.current_texture = self.textures["walking1"]
+        elif self.animation_state < 3 / 8:
+            self.current_texture = self.textures["walking2"]
+        elif self.animation_state < 4 / 8:
+            self.current_texture = self.textures["walking3"]
+        elif self.animation_state < 5 / 8:
+            self.current_texture = self.textures["walking4"]
+        elif self.animation_state < 6 / 8:
+            self.current_texture = self.textures["walking5"]
+        elif self.animation_state < 7 / 8:
+            self.current_texture = self.textures["walking6"]
+        elif self.animation_state < 1:
+            self.current_texture = self.textures["walking7"]
+        else:
+            self.animation_state = 0
+            self.current_texture = self.textures["walking0"]
 
     def move_player(self, direction, tickrate, active_chunks):
+        self.set_animation_texture(tickrate)
         step = direction * tickrate
         if direction > 0:
             smallest_x_distance, amount_of_nearest_blocks, blcos = self.find_smallest_x_distance(self.right_side_blocks, True)
