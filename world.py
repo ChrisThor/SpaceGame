@@ -157,6 +157,8 @@ class World:
 
         self.get_collision_blocks()
 
+        self.player.manage_animations(tickrate)
+
         if self.move_right:
             self.player.flip_texture = False
             if self.player.move_player(5, tickrate, self.active_chunks):
@@ -165,7 +167,7 @@ class World:
             self.player.flip_texture = True
             if self.player.move_player(-5, tickrate, self.active_chunks):
                 self.get_collision_blocks()
-        else:
+        elif self.player.speed.y_value == 0:
             self.player.current_texture = self.player.textures["standing"]
             self.player.animation_state = 0
 

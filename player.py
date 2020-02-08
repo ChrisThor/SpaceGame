@@ -21,8 +21,10 @@ class Player:
         self.left_side_blocks = []
         self.right_side_blocks = []
         self.animation_state = 0
+        self.animation_type = 0
         self.textures = {}
         self.flip_texture = False
+        self.smallest_y_distance = None
         self.load_character_textures()
         self.current_texture = self.textures["standing"]
         self.mining_device = mining_device.MiningDevice(2, 3)
@@ -37,6 +39,14 @@ class Player:
         self.textures["walking5"] = pygame.image.load("textures/character/genvieve_walking_5.png")
         self.textures["walking6"] = pygame.image.load("textures/character/genvieve_walking_6.png")
         self.textures["walking7"] = pygame.image.load("textures/character/genvieve_walking_7.png")
+        self.textures["jumping0"] = pygame.image.load("textures/character/genvieve_jumping_0.png")
+        self.textures["jumping1"] = pygame.image.load("textures/character/genvieve_jumping_1.png")
+        self.textures["jumping2"] = pygame.image.load("textures/character/genvieve_jumping_2.png")
+        self.textures["jumping3"] = pygame.image.load("textures/character/genvieve_jumping_3.png")
+        self.textures["falling0"] = pygame.image.load("textures/character/genvieve_falling_0.png")
+        self.textures["falling1"] = pygame.image.load("textures/character/genvieve_falling_1.png")
+        self.textures["falling2"] = pygame.image.load("textures/character/genvieve_falling_2.png")
+        self.textures["falling3"] = pygame.image.load("textures/character/genvieve_falling_3.png")
 
     def draw_player(self, background, center_x, center_y, zoom, block_size):
         zoom_factor = zoom * block_size
@@ -47,16 +57,37 @@ class Player:
         #                   self.width * zoom_factor,
         #                   self.height * zoom_factor))
         size = self.current_texture.get_size()
-        x_offset = 1
+        x_offset = 1 + 3 / 8
         if self.flip_texture:
             texture = pygame.transform.flip(self.current_texture, True, False)
-            x_offset = 1.5
+            x_offset = 1.625
         else:
             texture = self.current_texture
         background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))), (center_x - x_offset * zoom_factor,
                           center_y - 2.5 * zoom_factor))
-
-    def set_animation_texture(self, tickrate):
+    
+    def manage_animations(self, tickrate):
+        if self.speed.y_value > 0:
+            if self.smallest_y_distance is not None:
+                if self.smallest_y_distance > 1:
+                    if self.animation_type != 2:
+                        self.animation_type = 2
+                        self.animation_state = 0
+                    self.set_falling_animation_texture(tickrate)
+                else:
+                    self.set_walking_animation_texture(tickrate)
+            else:
+                if self.animation_type != 2:
+                    self.animation_type = 2
+                    self.animation_state = 0
+                self.set_falling_animation_texture(tickrate)
+        elif self.speed.y_value < 0:
+            if self.animation_type != 3:
+                self.animation_type = 3
+                self.animation_state = 0
+            self.set_jumping_animation_texture(tickrate)
+    
+    def set_walking_animation_texture(self, tickrate):
         self.animation_state += tickrate
         if self.animation_state < 1 / 8:
             self.current_texture = self.textures["walking0"]
@@ -78,8 +109,35 @@ class Player:
             self.animation_state = 0
             self.current_texture = self.textures["walking0"]
 
+    def set_falling_animation_texture(self, tickrate):
+        if self.animation_state < 1 / 10:
+            self.current_texture = self.textures["falling0"]
+        elif self.animation_state < 2 / 10:
+            self.current_texture = self.textures["falling1"]
+        elif self.animation_state < 3 / 10:
+            self.current_texture = self.textures["falling2"]
+        elif self.animation_state < 4 / 10:
+            self.current_texture = self.textures["falling3"]
+        self.animation_state += tickrate
+
+    def set_jumping_animation_texture(self, tickrate):
+        if self.animation_state < 1 / 10:
+            self.current_texture = self.textures["jumping0"]
+        elif self.animation_state < 2 / 10:
+            self.current_texture = self.textures["jumping1"]
+        elif self.animation_state < 3 / 10:
+            self.current_texture = self.textures["jumping2"]
+        elif self.animation_state < 4 / 10:
+            self.current_texture = self.textures["jumping3"]
+        self.animation_state += tickrate
+
     def move_player(self, direction, tickrate, active_chunks):
-        self.set_animation_texture(tickrate)
+        if self.speed.y_value == 0:
+            if self.animation_type != 1:
+                self.animation_type = 1
+                self.animation_state = 0
+            self.set_walking_animation_texture(tickrate)
+
         step = direction * tickrate
         if direction > 0:
             smallest_x_distance, amount_of_nearest_blocks, blcos = self.find_smallest_x_distance(self.right_side_blocks, True)
@@ -159,21 +217,21 @@ class Player:
         return smallest_x_distance, amount, blcos
 
     def check_blocks_underneath(self, tickrate, gravity):
-        smallest_y_distance = None
+        self.smallest_y_distance = None
         temp_block = None
         for block in self.bottom_blocks:
             relative_distance_to_player = (block.position - self.position)
-            if smallest_y_distance is None:
+            if self.smallest_y_distance is None:
                 temp_block = block
-                smallest_y_distance = relative_distance_to_player.y_value
-            elif smallest_y_distance > relative_distance_to_player.y_value:
+                self.smallest_y_distance = relative_distance_to_player.y_value
+            elif self.smallest_y_distance > relative_distance_to_player.y_value:
                 temp_block = block
-                smallest_y_distance = relative_distance_to_player.y_value
+                self.smallest_y_distance = relative_distance_to_player.y_value
 
         try:
-            if smallest_y_distance == 0:
+            if self.smallest_y_distance == 0:
                 return True
-            elif smallest_y_distance < 0:
+            elif self.smallest_y_distance < 0:
                 self.position.y_value = math.floor(self.position.y_value)
                 return True
             else:
