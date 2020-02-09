@@ -5,6 +5,8 @@ import vector
 import noise_generator
 import random
 import math
+import placed_object
+import blueprint_object
 
 
 class World:
@@ -129,8 +131,8 @@ class World:
                         self.player.jumps -= 1
                         self.player.speed.y_value = -31.25
                 elif event.key == pygame.K_x:
-                    if self.tool_mode == 0:
-                        self.tool_mode = 1
+                    if self.tool_mode < 2:
+                        self.tool_mode += 1
                     else:
                         self.tool_mode = 0
                 elif event.key == pygame.K_LCTRL:
@@ -153,7 +155,7 @@ class World:
                 if event.button == 1 or event.button == 3:
                     self.tool_active = False
 
-        self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate)
+        self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
 
         self.get_collision_blocks()
 
@@ -175,7 +177,7 @@ class World:
         self.apply_speed(tickrate)
 
         for chunq in self.active_chunks:
-            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
+            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour, tickrate)
 
         self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
         for chunq in self.active_chunks:
@@ -394,7 +396,7 @@ class World:
                     block.alternate_colour = self.player.side_block_colour
                     self.player.right_side_blocks.append(block)
 
-    def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate):
+    def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate, background):
         mouse_position = pygame.mouse.get_pos()
         block_pos_x = \
             math.floor(((mouse_position[0] - center_x) / (
@@ -402,6 +404,47 @@ class World:
         block_pos_y = \
             math.floor(((mouse_position[1] - center_y) / (
                     self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
+
+        if self.tool_mode == 2:
+            if self.player.blueprint is None:
+                textures = [
+                    pygame.image.load("textures/objects/flag_germany_0.png"),
+                    pygame.image.load("textures/objects/flag_germany_1.png"),
+                    pygame.image.load("textures/objects/flag_germany_2.png"),
+                    pygame.image.load("textures/objects/flag_germany_3.png"),
+                    pygame.image.load("textures/objects/flag_germany_4.png"),
+                    pygame.image.load("textures/objects/flag_germany_5.png")
+                ]
+                self.player.blueprint = blueprint_object.BlueprintObject("The German flag",
+                                                                         "Waving in the wind in all its glory...",
+                                                                         textures)
+            area_x_1 = block_pos_x
+            area_y_1 = block_pos_y
+            self.player.blueprint.draw_blueprint(background,
+                                                 self.player,
+                                                 zoom_factor,
+                                                 center_x,
+                                                 center_y,
+                                                 vector.Vector(block_pos_x, block_pos_y + 1),
+                                                 self.general_block_size,
+                                                 self.player.flip_texture)
+            if self.tool_active:
+                chunk_x = math.floor(area_x_1 / self.general_chunk_size)
+                chunk_y = math.floor(area_y_1 / self.general_chunk_size)
+                trans_flag = placed_object.PlacedObject(self.player.blueprint.name,
+                                                        self.player.blueprint.description,
+                                                        self.player.blueprint.position,
+                                                        self.player.blueprint.textures,
+                                                        self.player.blueprint.flip_texture)
+                for chunq in self.chunks:
+                    if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
+                        chunq.placed_objects.append(trans_flag)
+
+                self.tool_active = False
+                self.player.blueprint = None
+
+            # area_x_2 = block_pos_x + trans_flag.size[0] / self.general_block_size
+            # area_y_2 = block_pos_y - trans_flag.size[1] / self.general_block_size
 
         area_x_1 = block_pos_x - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
         area_x_2 = block_pos_x + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))

@@ -9,9 +9,11 @@ class Chunk:
     def __init__(self, textures, world_information, chunk_index, position=vector.Vector(), size=16, block_size=8):
         self.position = position
         self.block_offset = None
+        self.placed_objects = []
         self.blocks = []
         self.state = 0
         self.size = size
+        self.block_size = block_size
         solid = True
         if position.y_value < 0:
             solid = False
@@ -47,7 +49,7 @@ class Chunk:
                     if bloq[0].solid:
                         bloq[0].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
 
-    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour):
+    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour, tickrate):
         if self.state != 2:
             if self.state == 0:
                 for block_line in self.blocks:
@@ -56,6 +58,8 @@ class Chunk:
                             bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
             else:
                 self.draw_black_chunk(background, center_x, center_y, player, zoom_factor, colour)
+        for object_on_chunk in self.placed_objects:
+            object_on_chunk.draw_object(background, player, zoom_factor, center_x, center_y, self.block_size, tickrate, self.block_offset)
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
         try:

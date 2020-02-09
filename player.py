@@ -28,6 +28,7 @@ class Player:
         self.load_character_textures()
         self.current_texture = self.textures["standing"]
         self.mining_device = mining_device.MiningDevice(2, 3)
+        self.blueprint = None
 
     def load_character_textures(self):
         self.textures["standing"] = pygame.image.load("textures/character/genvieve_standing.png")
@@ -57,7 +58,7 @@ class Player:
         #                   self.width * zoom_factor,
         #                   self.height * zoom_factor))
         size = self.current_texture.get_size()
-        x_offset = 1 + 3 / 8
+        x_offset = 1.375
         if self.flip_texture:
             texture = pygame.transform.flip(self.current_texture, True, False)
             x_offset = 1.625
