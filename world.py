@@ -7,6 +7,7 @@ import random
 import math
 import placed_object
 import blueprint_object
+import item
 
 
 class World:
@@ -21,6 +22,7 @@ class World:
         self.width = width
         self.generate_chunks(height, width, background, screen)
         self.all_blocks = self.get_all_blocks()
+        self.apply_block_variation()
         self.max_light_distance = 8
         self.player = player.Player()
         self.set_player_position(height)
@@ -33,6 +35,16 @@ class World:
         self.mouse_position = None
         self.player_direction = 0
         self.gravity = 1
+
+    def apply_block_variation(self):
+        for chunq in self.chunks:
+            for block_line in chunq.blocks:
+                for block in block_line:
+                    blocq = chunq.get_block_relative_to_block(block[0], self.chunks, 0, -1)
+                    if blocq is not None:
+                        if not blocq[0].solid and not blocq[1].solid and (block[0].solid or block[1].solid):
+                            block[0].containing = item.Item([self.textures["grass"]])
+                            block[1].containing = item.Item([self.textures["grass"]])
 
     def set_player_position(self, height):
         y = None
@@ -59,8 +71,10 @@ class World:
     def load_textures(self, screen, background):
         self.display_loading_text(screen, background, "Loading Textures...", 0)
         self.textures["test0"] = pygame.image.load("textures/blocks/test00.png")
-        self.display_loading_text(screen, background, "Loading Textures...", 0.5)
+        self.display_loading_text(screen, background, "Loading Textures...", 0.33)
         self.textures["test1"] = pygame.image.load("textures/blocks/test02.png")
+        self.display_loading_text(screen, background, "Loading Textures...", 0.67)
+        self.textures["grass"] = pygame.image.load("textures/blocks/grass.png")
         self.display_loading_text(screen, background, "Loading Textures...", 1)
 
     def generate_chunks(self, height, width, background, screen):
