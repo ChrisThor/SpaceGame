@@ -51,12 +51,13 @@ class Player:
 
     def draw_player(self, background, center_x, center_y, zoom, block_size):
         zoom_factor = zoom * block_size
-        # pygame.draw.rect(background,
-        #                  (255, 255, 255),
-        #                  (center_x - self.width / 2 * zoom_factor,
-        #                   center_y - self.height / 2 * zoom_factor,
-        #                   self.width * zoom_factor,
-        #                   self.height * zoom_factor))
+        if self.bottom_block_colour is not None:
+            pygame.draw.rect(background,
+                             (255, 255, 255),
+                             (center_x - self.width / 2 * zoom_factor,
+                              center_y - self.height / 2 * zoom_factor,
+                              self.width * zoom_factor,
+                              self.height * zoom_factor))
         size = self.current_texture.get_size()
         x_offset = 1.375
         if self.flip_texture:
