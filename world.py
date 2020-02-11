@@ -190,8 +190,13 @@ class World:
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
 
+        objects_on_chunks = []
         for chunq in self.active_chunks:
-            chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour, tickrate)
+            chunk_objects = chunq.draw_chunk_background(background, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
+            for chunk_object in chunk_objects:
+                objects_on_chunks.append(chunk_object)
+        for object_on_chunk in objects_on_chunks:
+            object_on_chunk.draw_object(background, self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
 
         self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
         for chunq in self.active_chunks:

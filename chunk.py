@@ -49,7 +49,7 @@ class Chunk:
                     if bloq[0].solid:
                         bloq[0].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
 
-    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour, tickrate):
+    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour):
         if self.state != 2:
             if self.state == 0:
                 for block_line in self.blocks:
@@ -58,8 +58,10 @@ class Chunk:
                             bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
             else:
                 self.draw_black_chunk(background, center_x, center_y, player, zoom_factor, colour)
-        for object_on_chunk in self.placed_objects:
-            object_on_chunk.draw_object(background, player, zoom_factor, center_x, center_y, self.block_size, tickrate, self.block_offset)
+        if self.block_offset is not None:
+            for object_on_chunk in self.placed_objects:
+                object_on_chunk.block_offset = self.block_offset
+        return self.placed_objects
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
         try:

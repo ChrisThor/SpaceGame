@@ -13,20 +13,21 @@ class PlacedObject:
             self.flip_textures()
         self.current_texture = textures[0]
         self.size = textures[0].get_size()
+        self.block_offset = None
         self.frame_length = 1 / 6
 
     def flip_textures(self):
         for i in range(len(self.textures)):
             self.textures[i] = pygame.transform.flip(self.textures[i], True, False)
 
-    def draw_object(self, background, player, zoom_factor, center_x, center_y, block_size, tickrate, block_offset):
+    def draw_object(self, background, player, zoom_factor, center_x, center_y, block_size, tickrate):
         self.animate(tickrate)
         zoom = zoom_factor * block_size
-        if block_offset is None:
+        if self.block_offset is None:
             position = self.position
         else:
             position = self.position.copy()
-            position.x_value += block_offset
+            position.x_value += self.block_offset
         relative_distance_to_player = (position - player.position) * zoom
         screen_position = (center_x + relative_distance_to_player.x_value, center_y + relative_distance_to_player.y_value - self.size[1] / 2 * zoom_factor - zoom / 4)
         background.blit(pygame.transform.scale(self.current_texture,
