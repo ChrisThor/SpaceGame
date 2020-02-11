@@ -22,7 +22,7 @@ class World:
         self.width = width
         self.generate_chunks(height, width, background, screen)
         self.all_blocks = self.get_all_blocks()
-        self.apply_block_variation()
+        self.apply_block_variation(background, screen)
         self.max_light_distance = 8
         self.player = player.Player()
         self.set_player_position(height)
@@ -36,7 +36,9 @@ class World:
         self.player_direction = 0
         self.gravity = 1
 
-    def apply_block_variation(self):
+    def apply_block_variation(self, background, screen):
+        value = 0
+        max_value = len(self.chunks) - 1
         for chunq in self.chunks:
             for block_line in chunq.blocks:
                 for block in block_line:
@@ -45,6 +47,8 @@ class World:
                         if not blocq[0].solid and not blocq[1].solid and (block[0].solid or block[1].solid):
                             block[0].containing = item.Item([self.textures["grass"]])
                             block[1].containing = item.Item([self.textures["grass"]])
+            value += 1
+            self.display_loading_text(screen, background, "Apply Block Variation...", round(value / max_value * 100))
 
     def set_player_position(self, height):
         y = None
