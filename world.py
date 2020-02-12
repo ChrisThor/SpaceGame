@@ -7,6 +7,8 @@ import random
 import math
 import placed_object
 import blueprint_object
+import chat
+import yaml
 import item
 
 
@@ -30,6 +32,9 @@ class World:
         self.active_chunks = []
         self.move_left = False
         self.move_right = False
+        self.chat_active = False
+        self.text_surface = None
+        self.chat = chat.Chat()
         self.tool_active = False
         self.tool_mode = 0
         self.mouse_position = None
@@ -127,51 +132,56 @@ class World:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_a:
-                    self.move_left = True
-                elif event.key == pygame.K_d:
-                    self.move_right = True
-                elif event.key == pygame.K_F2:
-                    zoom_factor *= 2
-                elif event.key == pygame.K_F1:
-                    zoom_factor /= 2
-                elif event.key == pygame.K_F3:
-                    if self.black_chunk_colour == (0, 0, 0):
-                        self.start_debug_mode()
-                    else:
-                        self.stop_debug_mode()
-                elif event.key == pygame.K_SPACE:
-                    if self.player.speed.y_value == 0 and self.player.jumps > 0 and \
-                            not self.player.check_top_blocks(tickrate, 50):
-                        self.player.jumps -= 1
-                        self.player.speed.y_value = -31.25
-                elif event.key == pygame.K_x:
-                    if self.tool_mode < 2:
-                        self.tool_mode += 1
-                    else:
-                        self.tool_mode = 0
-                elif event.key == pygame.K_LCTRL:
-                    self.player.mining_device.size = 1
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_a:
-                    self.move_left = False
-                elif event.key == pygame.K_d:
-                    self.move_right = False
-                elif event.key == pygame.K_LCTRL:
-                    self.player.mining_device.size = self.player.mining_device.original_size
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    self.player.mining_device.mode = 0
-                    self.tool_active = True
-                elif event.button == 3:
-                    self.player.mining_device.mode = 1
-                    self.tool_active = True
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1 or event.button == 3:
-                    self.tool_active = False
+            if not self.chat_active:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                    elif event.key == pygame.K_RETURN:
+                        self.chat_active = True
+                    elif event.key == pygame.K_a:
+                        self.move_left = True
+                    elif event.key == pygame.K_d:
+                        self.move_right = True
+                    elif event.key == pygame.K_F2:
+                        zoom_factor *= 2
+                    elif event.key == pygame.K_F1:
+                        zoom_factor /= 2
+                    elif event.key == pygame.K_F3:
+                        if self.black_chunk_colour == (0, 0, 0):
+                            self.start_debug_mode()
+                        else:
+                            self.stop_debug_mode()
+                    elif event.key == pygame.K_SPACE:
+                        if self.player.speed.y_value == 0 and self.player.jumps > 0 and \
+                                not self.player.check_top_blocks(tickrate, 50):
+                            self.player.jumps -= 1
+                            self.player.speed.y_value = -31.25
+                    elif event.key == pygame.K_x:
+                        if self.tool_mode < 2:
+                            self.tool_mode += 1
+                        else:
+                            self.tool_mode = 0
+                    elif event.key == pygame.K_LCTRL:
+                        self.player.mining_device.size = 1
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_a:
+                        self.move_left = False
+                    elif event.key == pygame.K_d:
+                        self.move_right = False
+                    elif event.key == pygame.K_LCTRL:
+                        self.player.mining_device.size = self.player.mining_device.original_size
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.player.mining_device.mode = 0
+                        self.tool_active = True
+                    elif event.button == 3:
+                        self.player.mining_device.mode = 1
+                        self.tool_active = True
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1 or event.button == 3:
+                        self.tool_active = False
+            else:
+                self.chat_active, self.text_surface = self.chat.enter_text(event, self.player)
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
 
@@ -205,6 +215,9 @@ class World:
         self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
         for chunq in self.active_chunks:
             chunq.draw_chunk_foreground(background, center_x, center_y, zoom_factor, self.player)
+
+        if self.chat_active and self.text_surface is not None:
+            background.blit(self.text_surface, (0, 0))
 
         return running, zoom_factor
 
@@ -429,42 +442,36 @@ class World:
                     self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
 
         if self.tool_mode == 2:
-            if self.player.blueprint is None:
-                textures = [
-                    pygame.image.load("textures/objects/flag_germany_0.png"),
-                    pygame.image.load("textures/objects/flag_germany_1.png"),
-                    pygame.image.load("textures/objects/flag_germany_2.png"),
-                    pygame.image.load("textures/objects/flag_germany_3.png"),
-                    pygame.image.load("textures/objects/flag_germany_4.png"),
-                    pygame.image.load("textures/objects/flag_germany_5.png")
-                ]
-                self.player.blueprint = blueprint_object.BlueprintObject("The German flag",
-                                                                         "Waving in the wind in all its glory...",
-                                                                         textures)
-            area_x_1 = block_pos_x
-            area_y_1 = block_pos_y
-            self.player.blueprint.draw_blueprint(background,
-                                                 self.player,
-                                                 zoom_factor,
-                                                 center_x,
-                                                 center_y,
-                                                 vector.Vector(block_pos_x, block_pos_y + 1),
-                                                 self.general_block_size,
-                                                 self.player.flip_texture)
-            if self.tool_active:
-                chunk_x = math.floor(area_x_1 / self.general_chunk_size)
-                chunk_y = math.floor(area_y_1 / self.general_chunk_size)
-                trans_flag = placed_object.PlacedObject(self.player.blueprint.name,
-                                                        self.player.blueprint.description,
-                                                        self.player.blueprint.position,
-                                                        self.player.blueprint.textures,
-                                                        self.player.blueprint.flip_texture)
-                for chunq in self.chunks:
-                    if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
-                        chunq.placed_objects.append(trans_flag)
+            if self.player.blueprint is not None:
+                area_x_1 = block_pos_x
+                area_y_1 = block_pos_y
+                self.player.blueprint.draw_blueprint(background,
+                                                     self.player,
+                                                     zoom_factor,
+                                                     center_x,
+                                                     center_y,
+                                                     vector.Vector(block_pos_x, block_pos_y + 1),
+                                                     self.general_block_size,
+                                                     self.player.flip_texture)
+                if self.tool_active:
+                    chunk_x = math.floor(area_x_1 / self.general_chunk_size)
+                    chunk_y = math.floor(area_y_1 / self.general_chunk_size)
+                    if "block" not in self.player.blueprint.object_id:
+                        with open(f"world_objects/objects/{self.player.blueprint.object_id}.yaml", "r") as file:
+                            object_template = yaml.safe_load(file)
+                            object_to_place = placed_object.PlacedObject(object_template["id"],
+                                                                         object_template["name"],
+                                                                         object_template["description"],
+                                                                         vector.Vector(block_pos_x, block_pos_y + 1),
+                                                                         object_template["textures"],
+                                                                         self.player.flip_texture,
+                                                                         object_template["drop"],
+                                                                         float(object_template["animation_tick"]))
+                            for chunq in self.chunks:
+                                if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
+                                    chunq.placed_objects.append(object_to_place)
 
-                self.tool_active = False
-                self.player.blueprint = None
+                    self.tool_active = False
 
             # area_x_2 = block_pos_x + trans_flag.size[0] / self.general_block_size
             # area_y_2 = block_pos_y - trans_flag.size[1] / self.general_block_size

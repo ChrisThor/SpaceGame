@@ -2,19 +2,23 @@ import pygame
 
 
 class PlacedObject:
-    def __init__(self, name, description, position, textures, flipped):
+    def __init__(self, object_id, name, description, position, textures, flipped, droppable, animation_tick):
+        self.object_id = object_id
         self.name = name
         self.description = description
         self.position = position
-        self.textures = textures
+        self.textures = []
+        for texture in textures:
+            self.textures.append(pygame.image.load(texture))
         self.animation_state = 0
         self.flip_texture = flipped
+        self.droppable = droppable
         if flipped:
             self.flip_textures()
         self.current_texture = textures[0]
-        self.size = textures[0].get_size()
+        self.size = self.textures[0].get_size()
         self.block_offset = None
-        self.frame_length = 1 / 6
+        self.frame_length = animation_tick
 
     def flip_textures(self):
         for i in range(len(self.textures)):
