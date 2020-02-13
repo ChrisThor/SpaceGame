@@ -60,7 +60,16 @@ class Chunk:
                 self.draw_black_chunk(background, center_x, center_y, player, zoom_factor, colour)
         if self.block_offset is not None:
             for object_on_chunk in self.placed_objects:
-                object_on_chunk.block_offset = self.block_offset
+                if object_on_chunk.block_offset is None:
+                    object_on_chunk.block_offset = self.block_offset
+                else:
+                    break
+        else:
+            for object_on_chunk in self.placed_objects:
+                if object_on_chunk.block_offset is not None:
+                    object_on_chunk.block_offset = None
+                else:
+                    break
         return self.placed_objects
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
