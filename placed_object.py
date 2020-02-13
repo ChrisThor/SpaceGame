@@ -15,7 +15,7 @@ class PlacedObject:
         self.droppable = droppable
         if flipped:
             self.flip_textures()
-        self.current_texture = textures[0]
+        self.current_texture = self.textures[0]
         self.size = self.textures[0].get_size()
         self.block_offset = None
         self.frame_length = animation_tick
