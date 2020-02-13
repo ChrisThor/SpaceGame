@@ -456,20 +456,19 @@ class World:
                 if self.tool_active:
                     chunk_x = math.floor(area_x_1 / self.general_chunk_size)
                     chunk_y = math.floor(area_y_1 / self.general_chunk_size)
-                    if "block" not in self.player.blueprint.object_id:
-                        with open(f"world_objects/objects/{self.player.blueprint.object_id}.yaml", "r") as file:
-                            object_template = yaml.safe_load(file)
-                            object_to_place = placed_object.PlacedObject(object_template["id"],
-                                                                         object_template["name"],
-                                                                         object_template["description"],
-                                                                         vector.Vector(block_pos_x, block_pos_y + 1),
-                                                                         object_template["textures"],
-                                                                         self.player.flip_texture,
-                                                                         object_template["drop"],
-                                                                         float(object_template["animation_tick"]))
-                            for chunq in self.chunks:
-                                if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
-                                    chunq.placed_objects.append(object_to_place)
+                    with open(f"{self.player.blueprint.path}/{self.player.blueprint.object_id}.yaml", "r") as file:
+                        object_template = yaml.safe_load(file)
+                        object_to_place = placed_object.PlacedObject(self.player.blueprint.object_id,
+                                                                     object_template["name"],
+                                                                     object_template["description"],
+                                                                     vector.Vector(block_pos_x, block_pos_y + 1),
+                                                                     object_template["textures"],
+                                                                     self.player.flip_texture,
+                                                                     object_template["drop"],
+                                                                     float(object_template["animation_tick"]))
+                        for chunq in self.chunks:
+                            if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
+                                chunq.placed_objects.append(object_to_place)
 
                     self.tool_active = False
 

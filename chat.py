@@ -44,5 +44,6 @@ class Chat:
                     if f"{command[2]}.yaml" in objects:
                         with open(f"world_objects/objects/{command[2]}.yaml", "r") as file:
                             item = yaml.safe_load(file)
-                            player.blueprint = blueprint_object.BlueprintObject(pygame.image.load(item["textures"][0]), item["id"])
+                            player.blueprint = blueprint_object.BlueprintObject(
+                                pygame.image.load(item["textures"][0]), command[2], "world_objects/objects")
         self.text = ""

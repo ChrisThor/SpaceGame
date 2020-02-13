@@ -2,8 +2,9 @@ import pygame
 
 
 class BlueprintObject:
-    def __init__(self, texture, object_id):
+    def __init__(self, texture, object_id, path):
         self.object_id = object_id
+        self.path = path
         self.position = None
         self.texture = texture
         self.flip_texture = False
