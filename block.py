@@ -23,6 +23,7 @@ class Block:
         self.alternate_colour = None
         self.name = name
         self.description = description
+        self.solid_top = False
         if block_information * 20 > self.position.y_value:
             self.solid = False
         else:
@@ -45,6 +46,8 @@ class Block:
         elif self.solid:
             self.solid = False
             self.texture = None
+            self.solid_top = False
+            self.containing = None
             return True
         else:
             return False

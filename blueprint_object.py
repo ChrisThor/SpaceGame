@@ -16,7 +16,7 @@ class BlueprintObject:
         relative_distance_to_player = (position - player.position) * zoom
         self.position = position
         position_on_screen = (center_x + relative_distance_to_player.x_value,
-                              center_y + relative_distance_to_player.y_value - self.size[1] / 2 * zoom_factor - zoom / 4)
+                              center_y + relative_distance_to_player.y_value - self.size[1] * zoom_factor + 1.75 * zoom)
         texture = pygame.transform.flip(self.texture, flip, False)
 
         background.blit(pygame.transform.scale(texture,

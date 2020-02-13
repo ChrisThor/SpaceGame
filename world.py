@@ -402,7 +402,7 @@ class World:
                         relative_distance_to_player = block.position - self.player.position
                         if -self.player.width < relative_distance_to_player.x_value < self.player.width / 2 and \
                                 relative_distance_to_player.y_value >= 0:
-                            if block.solid:
+                            if block.solid or block.solid_top:
                                 if self.player.bottom_block_colour is not None:
                                     block.alternate_colour = self.player.bottom_block_colour
                                 new_blocks.append(block)
@@ -445,12 +445,14 @@ class World:
             if self.player.blueprint is not None:
                 area_x_1 = block_pos_x
                 area_y_1 = block_pos_y
+                blueprint_position = vector.Vector(block_pos_x,
+                                                   block_pos_y + 1)
                 self.player.blueprint.draw_blueprint(background,
                                                      self.player,
                                                      zoom_factor,
                                                      center_x,
                                                      center_y,
-                                                     vector.Vector(block_pos_x, block_pos_y + 1),
+                                                     blueprint_position,
                                                      self.general_block_size,
                                                      self.player.flip_texture)
                 if self.tool_active:
@@ -461,7 +463,7 @@ class World:
                         object_to_place = placed_object.PlacedObject(self.player.blueprint.object_id,
                                                                      object_template["name"],
                                                                      object_template["description"],
-                                                                     vector.Vector(block_pos_x, block_pos_y + 1),
+                                                                     blueprint_position,
                                                                      object_template["textures"],
                                                                      self.player.flip_texture,
                                                                      object_template["drop"],
@@ -469,6 +471,16 @@ class World:
                         for chunq in self.chunks:
                             if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
                                 chunq.placed_objects.append(object_to_place)
+                                if object_template["solid_top"]:
+                                    size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
+                                    for x in range(size[0]):
+                                        block = chunq.get_block_relative_to_block(
+                                            self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
+                                            self.active_chunks,
+                                            x,
+                                            -size[1]
+                                        )
+                                        block[0].solid_top = True
 
                     self.tool_active = False
 

@@ -33,7 +33,8 @@ class PlacedObject:
             position = self.position.copy()
             position.x_value += self.block_offset
         relative_distance_to_player = (position - player.position) * zoom
-        screen_position = (center_x + relative_distance_to_player.x_value, center_y + relative_distance_to_player.y_value - self.size[1] / 2 * zoom_factor - zoom / 4)
+        screen_position = (center_x + relative_distance_to_player.x_value,
+                           center_y + relative_distance_to_player.y_value - self.size[1] * zoom_factor + 1.75 * zoom)
         background.blit(pygame.transform.scale(self.current_texture,
                                                (int(self.size[0] * zoom_factor), int(self.size[1] * zoom_factor))),
                         screen_position)
