@@ -33,7 +33,6 @@ class World:
         self.move_left = False
         self.move_right = False
         self.chat_active = False
-        self.text_surface = None
         self.chat = chat.Chat()
         self.tool_active = False
         self.tool_mode = 0
@@ -181,7 +180,7 @@ class World:
                     if event.button == 1 or event.button == 3:
                         self.tool_active = False
             else:
-                self.chat_active, self.text_surface = self.chat.enter_text(event, self.player)
+                self.chat_active = self.chat.enter_text(event, self.player)
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
 
@@ -216,8 +215,9 @@ class World:
         for chunq in self.active_chunks:
             chunq.draw_chunk_foreground(background, center_x, center_y, zoom_factor, self.player)
 
-        if self.chat_active and self.text_surface is not None:
-            background.blit(self.text_surface, (0, 0))
+        if self.chat_active:
+            text_surface = self.chat.process(tickrate)
+            background.blit(text_surface, (0, 0))
 
         return running, zoom_factor
 

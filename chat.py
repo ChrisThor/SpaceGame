@@ -8,20 +8,30 @@ class Chat:
     def __init__(self):
         self.text = ""
         self.font = pygame.font.Font("fonts/Roboto_Mono/RobotoMono-Light.ttf", 50)
+        self.pointer_tick = 0
+        self.pointer = "|"
 
     def enter_text(self, event, player):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 self.interpret_command(player)
-                return False, None
+                return False
             elif event.key == pygame.K_BACKSPACE:
                 if len(self.text) > 0:
                     self.text = self.text[:-1]
             else:
                 self.text += event.unicode
+        return True
 
-        text_surface = self.font.render(self.text, True, (255, 255, 255))
-        return True, text_surface
+    def process(self, tickrate):
+        self.pointer_tick += tickrate
+        if self.pointer_tick > .5 and self.pointer == "|":
+            self.pointer = ""
+        elif self.pointer_tick > 1:
+            self.pointer_tick = 0
+            self.pointer = "|"
+        text_surface = self.font.render(f"> {self.text}{self.pointer}", True, (255, 255, 255))
+        return text_surface
 
     def interpret_command(self, player):
         print(self.text)
