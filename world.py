@@ -222,6 +222,13 @@ class World:
         for chunq in self.active_chunks:
             chunq.draw_chunk_foreground(background, center_x, center_y, zoom_factor, self.player)
 
+        if self.player.mining_device.mode != 2:
+            self.player.mining_device.draw_affected_area(background,
+                                                         zoom_factor * self.general_block_size,
+                                                         self.player,
+                                                         center_x,
+                                                         center_y)
+
         if self.chat_active:
             text_surface = self.chat.process(tickrate)
             background.blit(text_surface, (0, 0))
@@ -499,6 +506,8 @@ class World:
         area_y_1 = block_pos_y - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
         area_y_2 = block_pos_y + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
 
+        self.player.mining_device.update_position(vector.Vector(area_x_1, area_y_1))
+
         update_light_for_blocks = []
 
         for chunq in self.active_chunks:
@@ -513,8 +522,6 @@ class World:
                         chunk_pos_x -= self.width
 
                     if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
-                        for bloq in chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size]:
-                            bloq.alternate_colour = (255, 50, 50)
                         if self.tool_active:
                             if self.tool_mode == 0:
                                 if chunq.blocks[block_x % self.general_chunk_size][
