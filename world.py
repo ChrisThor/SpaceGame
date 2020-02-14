@@ -33,6 +33,7 @@ class World:
         self.move_left = False
         self.move_right = False
         self.chat_active = False
+        self.down_fall = 0
         self.chat = chat.Chat()
         self.tool_active = False
         self.tool_mode = 0
@@ -151,7 +152,9 @@ class World:
                         else:
                             self.stop_debug_mode()
                     elif event.key == pygame.K_SPACE:
-                        if self.player.speed.y_value == 0 and self.player.jumps > 0 and \
+                        if self.down_fall == 1:
+                            self.down_fall = 2
+                        elif self.player.speed.y_value == 0 and self.player.jumps > 0 and \
                                 not self.player.check_top_blocks(tickrate, 50):
                             self.player.jumps -= 1
                             self.player.speed.y_value = -31.25
@@ -162,6 +165,8 @@ class World:
                             self.tool_mode = 0
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = 1
+                    elif event.key == pygame.K_s:
+                        self.down_fall = 1
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.move_left = False
@@ -169,6 +174,8 @@ class World:
                         self.move_right = False
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = self.player.mining_device.original_size
+                    elif event.key == pygame.K_s:
+                        self.down_fall = 0
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.player.mining_device.mode = 0
@@ -402,7 +409,7 @@ class World:
                         relative_distance_to_player = block.position - self.player.position
                         if -self.player.width < relative_distance_to_player.x_value < self.player.width / 2 and \
                                 relative_distance_to_player.y_value >= 0:
-                            if block.solid or block.solid_top:
+                            if block.solid or self.down_fall != 2 and block.solid_top:
                                 if self.player.bottom_block_colour is not None:
                                     block.alternate_colour = self.player.bottom_block_colour
                                 new_blocks.append(block)
