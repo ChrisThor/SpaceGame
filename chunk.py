@@ -42,22 +42,22 @@ class Chunk:
                 buffer.append([foreground_block, background_block])
             self.blocks.append(buffer)
 
-    def draw_chunk_foreground(self, background, center_x, center_y, zoom_factor, player):
+    def draw_chunk_foreground(self, background, shade_surface, center_x, center_y, zoom_factor, player):
         if self.state == 0:
             for block_line in self.blocks:
                 for bloq in block_line:
                     if bloq[0].solid:
-                        bloq[0].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
+                        bloq[0].draw_block(background, shade_surface, center_x, center_y, player, zoom_factor, self.block_offset)
 
-    def draw_chunk_background(self, background, center_x, center_y, zoom_factor, player, colour):
+    def draw_chunk_background(self, background, shade_surface, center_x, center_y, zoom_factor, player, colour):
         if self.state != 2:
             if self.state == 0:
                 for block_line in self.blocks:
                     for bloq in block_line:
                         if bloq[1].solid and not bloq[0].solid:
-                            bloq[1].draw_block(background, center_x, center_y, player, zoom_factor, self.block_offset)
+                            bloq[1].draw_block(background, shade_surface, center_x, center_y, player, zoom_factor, self.block_offset)
             else:
-                self.draw_black_chunk(background, center_x, center_y, player, zoom_factor, colour)
+                self.draw_black_chunk(shade_surface, center_x, center_y, player, zoom_factor, colour)
         if self.block_offset is not None:
             for object_on_chunk in self.placed_objects:
                 if object_on_chunk.block_offset is None:
