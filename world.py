@@ -226,7 +226,7 @@ class World:
 
         background.blit(foreground, (0, 0))
 
-        if self.player.mining_device.mode != 2:
+        if self.tool_mode != 2:
             self.player.mining_device.draw_affected_area(background,
                                                          zoom_factor * self.general_block_size,
                                                          self.player,
@@ -508,28 +508,29 @@ class World:
             # area_x_2 = block_pos_x + trans_flag.size[0] / self.general_block_size
             # area_y_2 = block_pos_y - trans_flag.size[1] / self.general_block_size
 
-        area_x_1 = block_pos_x - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
+        area_x_1 = block_pos_x - (
+                self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
         area_x_2 = block_pos_x + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
-        area_y_1 = block_pos_y - (self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
         area_y_2 = block_pos_y + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
+        area_y_1 = block_pos_y - (
+                self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
 
         self.player.mining_device.update_position(vector.Vector(area_x_1, area_y_1))
 
-        update_light_for_blocks = []
+        if self.tool_active:
+            update_light_for_blocks = []
+            for chunq in self.active_chunks:
+                for block_x in range(area_x_1, area_x_2 + 1):
+                    for block_y in range(area_y_1, area_y_2 + 1):
+                        chunk_pos_x = math.floor(block_x / self.general_chunk_size)
+                        chunk_pos_y = math.floor(block_y / self.general_chunk_size)
 
-        for chunq in self.active_chunks:
-            for block_x in range(area_x_1, area_x_2 + 1):
-                for block_y in range(area_y_1, area_y_2 + 1):
-                    chunk_pos_x = math.floor(block_x / self.general_chunk_size)
-                    chunk_pos_y = math.floor(block_y / self.general_chunk_size)
+                        if chunk_pos_x < -self.width / 2:
+                            chunk_pos_x += self.width
+                        elif chunk_pos_x >= self.width / 2:
+                            chunk_pos_x -= self.width
 
-                    if chunk_pos_x < -self.width / 2:
-                        chunk_pos_x += self.width
-                    elif chunk_pos_x >= self.width / 2:
-                        chunk_pos_x -= self.width
-
-                    if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
-                        if self.tool_active:
+                        if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
                             if self.tool_mode == 0:
                                 if chunq.blocks[block_x % self.general_chunk_size][
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
@@ -539,6 +540,11 @@ class World:
                                             block_y % self.general_chunk_size][0].solid or self.player.mining_device.mode == 0 and \
                                             not chunq.blocks[block_x % self.general_chunk_size][
                                                 block_y % self.general_chunk_size][1].solid:
+                                        if not chunq.blocks[block_x % self.general_chunk_size][
+                                                block_y % self.general_chunk_size][self.player.mining_device.mode - 1].solid:
+                                            chunq.solid_blocks -= 1
+                                            if chunq.solid_blocks == 0:
+                                                chunq.state = 2
                                         update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                        [block_y % self.general_chunk_size])
                             elif self.tool_mode == 1:
@@ -551,9 +557,13 @@ class World:
                                         "This is a test description",
                                         1,
                                         self.textures["test0"]):
+                                    if not chunq.blocks[block_x % self.general_chunk_size][
+                                            block_y % self.general_chunk_size][self.player.mining_device.mode - 1].solid:
+                                        chunq.solid_blocks += 1
+                                        chunq.state = 0
                                     update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                    [block_y % self.general_chunk_size])
-        self.update_light_around_block(update_light_for_blocks)
+            self.update_light_around_block(update_light_for_blocks)
 
     def calculate_world_light(self, background, screen, max_value):
         value = 0
@@ -566,7 +576,9 @@ class World:
                         self.calc_light_around_block(block)
                         if block[0].brightness == 0:
                             black_blocks += 1
-            if black_blocks == chunq.size ** 2:
+            if chunq.solid_blocks == 0:
+                chunq.state = 2
+            elif black_blocks == chunq.size ** 2:
                 chunq.state = 1
             value += 1
             self.display_loading_text(screen, background, "Calculating Light...", round(value / max_value * 100))

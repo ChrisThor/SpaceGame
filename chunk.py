@@ -14,6 +14,7 @@ class Chunk:
         self.state = 0
         self.size = size
         self.block_size = block_size
+        self.solid_blocks = 0
         solid = True
         if position.y_value < 0:
             solid = False
@@ -39,6 +40,8 @@ class Chunk:
                                                random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
                                                solid=solid,
                                                max_brightness=0.6)
+                if foreground_block.solid or background_block.solid:
+                    self.solid_blocks += 1
                 buffer.append([foreground_block, background_block])
             self.blocks.append(buffer)
 
@@ -50,7 +53,7 @@ class Chunk:
                         bloq[0].draw_block(surfaces[1], surfaces[1], center_x, center_y, player, zoom_factor, self.block_offset)
                     elif bloq[1].solid:
                         bloq[1].draw_block(surfaces[0], surfaces[1], center_x, center_y, player, zoom_factor, self.block_offset)
-        else:
+        elif self.state == 1:
             self.draw_black_chunk(surfaces[1], center_x, center_y, player, zoom_factor, colour)
 
         for object_on_chunk in self.placed_objects:
