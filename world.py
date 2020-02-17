@@ -6,7 +6,7 @@ import noise_generator
 import random
 import math
 import placed_object
-import blueprint_object
+from screenshot import take_screenshot
 import chat
 import yaml
 import item
@@ -33,6 +33,7 @@ class World:
         self.move_left = False
         self.move_right = False
         self.chat_active = False
+        self.take_screenshot = False
         self.down_fall = 0
         self.chat = chat.Chat()
         self.tool_active = False
@@ -151,6 +152,8 @@ class World:
                             self.start_debug_mode()
                         else:
                             self.stop_debug_mode()
+                    elif event.key == pygame.K_F12:
+                        self.take_screenshot = True
                     elif event.key == pygame.K_SPACE:
                         if self.down_fall == 1:
                             self.down_fall = 2
@@ -236,6 +239,10 @@ class World:
         if self.chat_active:
             text_surface = self.chat.process(tickrate)
             background.blit(text_surface, (0, 0))
+
+        if self.take_screenshot:
+            take_screenshot(background)
+            self.take_screenshot = False
 
         return running, zoom_factor
 
