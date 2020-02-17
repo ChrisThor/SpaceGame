@@ -40,6 +40,7 @@ class World:
         self.tool_mode = 0
         self.mouse_position = None
         self.player_direction = 0
+        self.transparent_surface = pygame.Surface((1800, 1000), pygame.SRCALPHA, 32)
         self.gravity = 1
 
     def apply_block_variation(self, background, screen):
@@ -213,21 +214,17 @@ class World:
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
 
-        shade_surface = pygame.Surface((center_x * 2, center_y * 2), pygame.SRCALPHA, 32)
+        foreground = self.transparent_surface.copy()
 
         objects_on_chunks = []
         for chunq in self.active_chunks:
-            chunk_objects = chunq.draw_chunk_background(background, shade_surface, center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
-            for chunk_object in chunk_objects:
-                objects_on_chunks.append(chunk_object)
+            objects_on_chunks += chunq.draw_chunk([background, foreground], center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
         for object_on_chunk in objects_on_chunks:
             object_on_chunk.draw_object(background, self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
 
         self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
-        for chunq in self.active_chunks:
-            chunq.draw_chunk_foreground(background, shade_surface, center_x, center_y, zoom_factor, self.player)
 
-        background.blit(shade_surface, (0, 0))
+        background.blit(foreground, (0, 0))
 
         if self.player.mining_device.mode != 2:
             self.player.mining_device.draw_affected_area(background,
@@ -237,8 +234,7 @@ class World:
                                                          center_y)
 
         if self.chat_active:
-            text_surface = self.chat.process(tickrate)
-            background.blit(text_surface, (0, 0))
+            background.blit(self.chat.process(tickrate), (0, 0))
 
         if self.take_screenshot:
             take_screenshot(background)

@@ -63,7 +63,7 @@ class Block:
             return True
         return False
 
-    def draw_block(self, background, shade_surface, center_x, center_y, player, zoom_factor, block_offset):
+    def draw_block(self, background, foreground, center_x, center_y, player, zoom_factor, block_offset):
         if block_offset is None:
             relative_distance_to_player = (self.position - player.position) * zoom_factor * self.size
             pos_x_on_screen = int(center_x + relative_distance_to_player.x_value)
@@ -87,9 +87,9 @@ class Block:
                 shade = -255 * self.brightness * self.max_brightness + 255
                 if self.shade.get_alpha() != shade:
                     self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
-                shade_surface.blit(self.shade, (pos_x_on_screen, pos_y_on_screen))
+                foreground.blit(self.shade, (pos_x_on_screen, pos_y_on_screen))
             else:
-                pygame.draw.rect(shade_surface,
+                pygame.draw.rect(foreground,
                                  (0, 0, 0),
                                  (pos_x_on_screen, pos_y_on_screen,
                                   self.size * zoom_factor, self.size * zoom_factor))
