@@ -120,7 +120,7 @@ def main():
     framerate_stability_value = 0
     loop_type = 1
     frame_start = time.time()
-    frame_end = time.time()
+    frame_end = frame_start + 1 / fps
 
     while running:
         milliseconds = clock.tick(fps)
@@ -307,9 +307,6 @@ def main():
                 particle_tick = 0
 
         frame_end = time.time()
-        print(f"Deltaframe: {round(delta_frame, 4)}    ")
-        print(f"Tickrate:   {round(space.tickrate, 4)}   \n"
-              f"                                   ")
     pygame.quit()
 
 
@@ -421,63 +418,14 @@ def draw_particles(background, center_x, center_y, hope_ship, screen_width, spac
 
 
 def manage_framerate(delta_frame, fps, framerate_stability_value, space):
-    if fps == 120:
-        if delta_frame > 1 / 122:
-            fps = 60
-            space.tickrate = 1 / fps
-        framerate_stability_value = 0
-    if fps == 60:
-        if delta_frame > 1 / 61:
-            fps = 30
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 122:
-            if framerate_stability_value > 1:
-                fps = 120
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 30:
-        if delta_frame > 1 / 30.5:
-            fps = 15
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 61:
-            if framerate_stability_value > 1:
-                fps = 60
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 15:
-        if delta_frame > 1 / 15:
-            fps = 10
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 30.5:
-            if framerate_stability_value > 1:
-                fps = 30
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 10:
-        if delta_frame < 1 / 15:
-            if framerate_stability_value > 1:
-                fps = 15
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
+    if delta_frame < .5:
+        """
+        This if-statement prevents giant steps and tickrates. When the window is moved, processing stops until it is
+        released. Half a second should be a good balance, as I assume that there will never be a normal frame that takes
+        longer to calculate than that.
+        """
+        space.tickrate = delta_frame
+        fps = int(1 / delta_frame)
     return fps, framerate_stability_value
 
 
