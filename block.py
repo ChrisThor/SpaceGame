@@ -8,7 +8,7 @@ class Block:
                  size,
                  chunk,
                  texture,
-                 block_information,
+                 block_information=None,
                  colour=(123, 123, 123),
                  name="Test Block",
                  description="This is a test description",
@@ -24,10 +24,13 @@ class Block:
         self.name = name
         self.description = description
         self.solid_top = False
-        if block_information * 20 > self.position.y_value:
-            self.solid = False
+        if block_information is not None:
+            if block_information * 20 > self.position.y_value:
+                self.solid = False
+            else:
+                self.solid = True
         else:
-            self.solid = True
+            self.solid = solid
         # if random.randint(0, 1) == 0:
         #     solid = False
         # self.solid = solid
@@ -99,3 +102,6 @@ class Block:
                              (pos_x_on_screen, pos_y_on_screen,
                               self.size * zoom_factor, self.size * zoom_factor))
             self.alternate_colour = None
+
+    def draw_as_block_content(self, background, pos_x_on_screen, pos_y_on_screen, zoom):
+        background.blit(pygame.transform.scale(self.texture, (zoom, zoom)), (pos_x_on_screen, pos_y_on_screen))

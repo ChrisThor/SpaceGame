@@ -10,6 +10,7 @@ from screenshot import take_screenshot
 import chat
 import yaml
 import item
+from block import Block
 
 
 class World:
@@ -52,8 +53,12 @@ class World:
                     blocq = chunq.get_block_relative_to_block(block[0], self.chunks, 0, -1)
                     if blocq is not None:
                         if not blocq[0].solid and not blocq[1].solid and (block[0].solid or block[1].solid):
-                            block[0].containing = item.Item([self.textures["grass"]])
-                            block[1].containing = item.Item([self.textures["grass"]])
+                            block[0].containing = Block(block[0].position, block[0].size, chunq, self.textures["grass"],
+                                                        None, (0, 0, 0), "Grass", "Looks comfy enough to lie down on and take a short break.",
+                                                        hardness=0)
+                            block[1].containing = Block(block[0].position, block[0].size, chunq, self.textures["grass"],
+                                                        None, (0, 0, 0), "Grass", "Looks comfy enough to lie down on and take a short break.",
+                                                        hardness=0)
             value += 1
             self.display_loading_text(screen, background, "Apply Block Variation...", round(value / max_value * 100))
 
