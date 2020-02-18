@@ -19,6 +19,7 @@ class Block:
         self.position = position
         self.chunk = chunk
         self.texture = texture
+        self.used_texture = texture
         self.colour = colour
         self.alternate_colour = None
         self.name = name
@@ -81,12 +82,13 @@ class Block:
                 center_y + relative_distance_to_player.y_value + player.height * zoom_factor / 2 * self.size)
         if self.alternate_colour is None:
             if self.brightness > 0:
-                background.blit(pygame.transform.scale(self.texture, (int(self.size * zoom_factor), int(self.size * zoom_factor))), (pos_x_on_screen, pos_y_on_screen))
-                if self.containing is not None:
-                    self.containing.draw_as_block_content(background, pos_x_on_screen, pos_y_on_screen, int(self.size * zoom_factor))
                 if self.old_zoom_factor != zoom_factor:
                     self.old_zoom_factor = zoom_factor
                     self.shade = pygame.Surface((int(self.size * zoom_factor), int(self.size * zoom_factor)))
+                    self.used_texture = pygame.transform.scale(self.texture, (int(self.size * zoom_factor), int(self.size * zoom_factor)))
+                background.blit(self.used_texture, (pos_x_on_screen, pos_y_on_screen))
+                if self.containing is not None:
+                    self.containing.draw_as_block_content(background, pos_x_on_screen, pos_y_on_screen, int(self.size * zoom_factor), zoom_factor)
                 shade = -255 * self.brightness * self.max_brightness + 255
                 if self.shade.get_alpha() != shade:
                     self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
@@ -103,5 +105,7 @@ class Block:
                               self.size * zoom_factor, self.size * zoom_factor))
             self.alternate_colour = None
 
-    def draw_as_block_content(self, background, pos_x_on_screen, pos_y_on_screen, zoom):
-        background.blit(pygame.transform.scale(self.texture, (zoom, zoom)), (pos_x_on_screen, pos_y_on_screen))
+    def draw_as_block_content(self, background, pos_x_on_screen, pos_y_on_screen, zoom, zoom_factor):
+        if zoom_factor != self.old_zoom_factor:
+            self.used_texture = pygame.transform.scale(self.texture, (zoom, zoom))
+        background.blit(self.used_texture, (pos_x_on_screen, pos_y_on_screen))
