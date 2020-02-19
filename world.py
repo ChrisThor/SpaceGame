@@ -9,7 +9,6 @@ import placed_object
 from screenshot import take_screenshot
 import chat
 import yaml
-import item
 from block import Block
 
 
@@ -603,7 +602,7 @@ class World:
                         if not blocks[0].solid and not blocks[1].solid:
                             try:
                                 brightness = \
-                                    1 - (block[0].position - blocks[0].position).get_length() / self.max_light_distance
+                                    1 - ((block[0].position - blocks[0].position).get_length() - 1) / self.max_light_distance
                             except ZeroDivisionError:
                                 brightness = 1
                             if block[0].brightness < brightness:
