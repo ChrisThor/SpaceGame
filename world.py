@@ -173,6 +173,7 @@ class World:
                             self.tool_mode = 0
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = 1
+                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size))
                     elif event.key == pygame.K_s:
                         self.down_fall = 1
                 elif event.type == pygame.KEYUP:
@@ -182,6 +183,7 @@ class World:
                         self.move_right = False
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = self.player.mining_device.original_size
+                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size))
                     elif event.key == pygame.K_s:
                         self.down_fall = 0
                 elif event.type == pygame.MOUSEBUTTONDOWN:
