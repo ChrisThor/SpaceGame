@@ -90,7 +90,7 @@ class Block:
                 if self.containing is not None:
                     self.containing.draw_as_block_content(background, pos_x_on_screen, pos_y_on_screen, int(self.size * zoom_factor), zoom_factor)
                 shade = -255 * self.brightness * self.max_brightness + 255
-                if self.brightness != 1:
+                if self.brightness != 1 or self.max_brightness != 1:
                     if self.shade.get_alpha() != shade:
                         self.shade.set_alpha(-255 * self.brightness * self.max_brightness + 255)
                     foreground.blit(self.shade, (pos_x_on_screen, pos_y_on_screen))
