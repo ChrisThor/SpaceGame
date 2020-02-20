@@ -56,7 +56,7 @@ class Block:
         else:
             return False
 
-    def place(self, colour, name, description, hardness, texture):
+    def place(self, colour, name, description, hardness, texture, zoom):
         if not self.solid:
             self.solid = True
             self.colour = colour
@@ -64,6 +64,7 @@ class Block:
             self.description = description
             self.hardness = hardness
             self.texture = texture
+            self.scale_used_texture(zoom)
             return True
         return False
 
@@ -85,7 +86,7 @@ class Block:
                 if self.old_zoom_factor != zoom_factor:
                     self.old_zoom_factor = zoom_factor
                     self.shade = pygame.Surface((int(self.size * zoom_factor), int(self.size * zoom_factor)))
-                    self.used_texture = pygame.transform.scale(self.texture, (int(self.size * zoom_factor), int(self.size * zoom_factor)))
+                    self.scale_used_texture(int(self.size * zoom_factor))
                 background.blit(self.used_texture, (pos_x_on_screen, pos_y_on_screen))
                 if self.containing is not None:
                     self.containing.draw_as_block_content(background, pos_x_on_screen, pos_y_on_screen, int(self.size * zoom_factor), zoom_factor)
@@ -108,5 +109,8 @@ class Block:
 
     def draw_as_block_content(self, background, pos_x_on_screen, pos_y_on_screen, zoom, zoom_factor):
         if zoom_factor != self.old_zoom_factor:
-            self.used_texture = pygame.transform.scale(self.texture, (zoom, zoom))
+            self.scale_used_texture(zoom)
         background.blit(self.used_texture, (pos_x_on_screen, pos_y_on_screen))
+
+    def scale_used_texture(self, zoom):
+        self.used_texture = pygame.transform.scale(self.texture, (zoom, zoom))

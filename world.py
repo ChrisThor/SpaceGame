@@ -562,7 +562,8 @@ class World:
                                         "Test Block",
                                         "This is a test description",
                                         1,
-                                        self.textures["test0"]):
+                                        self.textures["test0"],
+                                        int(self.general_block_size * zoom_factor)):
                                     if not chunq.blocks[block_x % self.general_chunk_size][
                                             block_y % self.general_chunk_size][self.player.mining_device.mode - 1].solid:
                                         chunq.solid_blocks += 1
