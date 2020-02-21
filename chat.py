@@ -60,16 +60,17 @@ class Chat:
         if len(self.history) == 0 or self.history[len(self.history) - 1] != self.text:
             self.history.append(self.text)
         command = self.text.split(" ")
-        if command[0] == "give":
-            if command[1] == "object" or command[1] == "o":
-                objects = os.listdir("world_objects/objects")
-                if f"{command[2]}.yaml" in objects:
-                    with open(f"world_objects/objects/{command[2]}.yaml", "r") as file:
-                        item = yaml.safe_load(file)
-                        player.blueprint = blueprint_object.BlueprintObject(
-                            pygame.image.load(item["textures"][0]), command[2], "world_objects/objects")
-        elif command[0] == "tp":
-            if len(command) == 3:
+        if len(command) == 3:
+            if command[0] == "give":
+                if command[1] == "object" or command[1] == "o":
+                    objects = os.listdir("world_objects/objects")
+                    if f"{command[2]}.yaml" in objects:
+                        with open(f"world_objects/objects/{command[2]}.yaml", "r") as file:
+                            item = yaml.safe_load(file)
+                            player.mining_device.tool = 2
+                            player.blueprint = blueprint_object.BlueprintObject(
+                                pygame.image.load(item["textures"][0]), command[2], "world_objects/objects")
+            elif command[0] == "tp":
                 if command[1] != "~":
                     try:
                         if "~" in command[1]:

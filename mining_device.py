@@ -10,6 +10,7 @@ class MiningDevice:
         self.zoom = None
         self.surface = None
         self.mode = 0
+        self.tool = 0
 
     def draw_affected_area(self, background, zoom, player, center_x, center_y):
         if self.zoom is not None:

@@ -37,7 +37,7 @@ class World:
         self.down_fall = 0
         self.chat = chat.Chat()
         self.tool_active = False
-        self.tool_mode = 0
+        self.player.mining_device.tool = 0
         self.mouse_position = None
         self.player_direction = 0
         self.transparent_surface = pygame.Surface((1800, 1000), pygame.SRCALPHA, 32)
@@ -167,10 +167,10 @@ class World:
                             self.player.jumps -= 1
                             self.player.speed.y_value = -31.25
                     elif event.key == pygame.K_x:
-                        if self.tool_mode < 2:
-                            self.tool_mode += 1
+                        if self.player.mining_device.tool < 2:
+                            self.player.mining_device.tool += 1
                         else:
-                            self.tool_mode = 0
+                            self.player.mining_device.tool = 0
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = 1
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size))
@@ -232,7 +232,7 @@ class World:
 
         background.blit(foreground, (0, 0))
 
-        if self.tool_mode != 2:
+        if self.player.mining_device.tool != 2:
             self.player.mining_device.draw_affected_area(background,
                                                          zoom_factor * self.general_block_size,
                                                          self.player,
@@ -468,7 +468,7 @@ class World:
             math.floor(((mouse_position[1] - center_y) / (
                     self.general_block_size * zoom_factor)) + self.player.position.y_value) - 2
 
-        if self.tool_mode == 2:
+        if self.player.mining_device.tool == 2:
             if self.player.blueprint is not None:
                 area_x_1 = block_pos_x
                 area_y_1 = block_pos_y
@@ -537,7 +537,7 @@ class World:
                             chunk_pos_x -= self.width
 
                         if chunk_pos_x == chunq.position.x_value and chunk_pos_y == chunq.position.y_value:
-                            if self.tool_mode == 0:
+                            if self.player.mining_device.tool == 0:
                                 if chunq.blocks[block_x % self.general_chunk_size][
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].dismantle(
                                         self.player.mining_device,
@@ -553,7 +553,7 @@ class World:
                                                 chunq.state = 2
                                         update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                        [block_y % self.general_chunk_size])
-                            elif self.tool_mode == 1:
+                            elif self.player.mining_device.tool == 1:
                                 if chunq.blocks[block_x % self.general_chunk_size][
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].place(
                                         (random.randint(0, 123),
