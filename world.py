@@ -488,17 +488,17 @@ class World:
                     with open(f"{self.player.blueprint.path}/{self.player.blueprint.object_id}.yaml", "r") as file:
                         object_template = yaml.safe_load(file)
                         object_to_place = placed_object.PlacedObject(self.player.blueprint.object_id,
-                                                                     object_template["name"],
-                                                                     object_template["description"],
+                                                                     object_template.get("name", "Default Name"),
+                                                                     object_template.get("description", "This is a default description"),
                                                                      blueprint_position,
                                                                      object_template["textures"],
                                                                      self.player.flip_texture,
-                                                                     object_template["drop"],
-                                                                     float(object_template["animation_tick"]))
+                                                                     object_template.get("drop", True),
+                                                                     float(object_template.get("animation_tick", 0.16666666)))
                         for chunq in self.chunks:
                             if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
                                 chunq.placed_objects.append(object_to_place)
-                                if object_template["solid_top"]:
+                                if object_template.get("solid_top", False):
                                     size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
                                     for x in range(size[0]):
                                         block = chunq.get_block_relative_to_block(
