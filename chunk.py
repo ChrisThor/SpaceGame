@@ -3,6 +3,7 @@ import block
 import vector
 import math
 import random
+import yaml
 
 
 class Chunk:
@@ -16,34 +17,42 @@ class Chunk:
         self.block_size = block_size
         self.solid_blocks = 0
         solid = True
-        if position.y_value < 0:
-            solid = False
-        for i in range(size):
-            buffer = []
-            for j in range(size):
-                foreground_block = block.Block(vector.Vector(self.position.x_value * self.size + i,
-                                                             self.position.y_value * self.size + j),
-                                               size=block_size,
-                                               chunk=self,
-                                               texture=textures["test1"],
-                                               block_information=world_information[chunk_index * self.size - i],
-                                               colour=(
-                                               random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
-                                               solid=solid)
-                background_block = block.Block(vector.Vector(self.position.x_value * self.size + i,
-                                                             self.position.y_value * self.size + j),
-                                               size=block_size,
-                                               chunk=self,
-                                               texture=textures["test1"],
-                                               block_information=world_information[chunk_index * self.size - i],
-                                               colour=(
-                                               random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
-                                               solid=solid,
-                                               max_brightness=0.6)
-                if foreground_block.solid or background_block.solid:
-                    self.solid_blocks += 1
-                buffer.append([foreground_block, background_block])
-            self.blocks.append(buffer)
+        with open("world_objects/blocks/dirt.yaml", "r") as file:
+            blcoq = yaml.safe_load(file)
+            if position.y_value < 0:
+                solid = False
+            for i in range(size):
+                buffer = []
+                for j in range(size):
+                    foreground_block = block.Block(vector.Vector(self.position.x_value * self.size + i,
+                                                                 self.position.y_value * self.size + j),
+                                                   size=block_size,
+                                                   chunk=self,
+                                                   texture=textures[blcoq["texture"]],
+                                                   block_information=world_information[chunk_index * self.size - i],
+                                                   colour=(
+                                                   random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
+                                                   solid=solid,
+                                                   hardness=blcoq.get("hardness", 0),
+                                                   name=blcoq["name"],
+                                                   description=blcoq["description"])
+                    background_block = block.Block(vector.Vector(self.position.x_value * self.size + i,
+                                                                 self.position.y_value * self.size + j),
+                                                   size=block_size,
+                                                   chunk=self,
+                                                   texture=textures[blcoq["texture"]],
+                                                   block_information=world_information[chunk_index * self.size - i],
+                                                   colour=(
+                                                   random.randint(0, 123), random.randint(0, 255), random.randint(0, 255)),
+                                                   solid=solid,
+                                                   max_brightness=0.6,
+                                                   hardness=blcoq.get("hardness", 0),
+                                                   name=blcoq["name"],
+                                                   description=blcoq["description"])
+                    if foreground_block.solid or background_block.solid:
+                        self.solid_blocks += 1
+                    buffer.append([foreground_block, background_block])
+                self.blocks.append(buffer)
 
     def draw_chunk(self, surfaces, center_x, center_y, zoom_factor, player, colour):
         if self.state == 0:

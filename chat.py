@@ -70,6 +70,13 @@ class Chat:
                             player.mining_device.tool = 2
                             player.blueprint = blueprint_object.BlueprintObject(
                                 pygame.image.load(item["textures"][0]), command[2], "world_objects/objects")
+                elif command[1] == "block" or command[1] == "b":
+                    blocks = os.listdir("world_objects/blocks")
+                    if f"{command[2]}.yaml" in blocks:
+                        with open(f"world_objects/blocks/{command[2]}.yaml", "r") as file:
+                            player.mining_device.tool = 1
+                            player.block = yaml.safe_load(file)
+
             elif command[0] == "tp":
                 if command[1] != "~":
                     try:

@@ -29,6 +29,7 @@ class Player:
         self.current_texture = self.textures["standing"]
         self.mining_device = mining_device.MiningDevice(2, 3)
         self.blueprint = None
+        self.block = None
 
     def load_character_textures(self):
         self.textures["standing"] = pygame.image.load("textures/character/genvieve_standing.png")

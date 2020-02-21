@@ -46,18 +46,34 @@ class World:
     def apply_block_variation(self, background, screen):
         value = 0
         max_value = len(self.chunks) - 1
+        with open("world_objects/blocks/grass.yaml", "r") as file:
+            grass = yaml.safe_load(file)
         for chunq in self.chunks:
             for block_line in chunq.blocks:
                 for block in block_line:
                     blocq = chunq.get_block_relative_to_block(block[0], self.chunks, 0, -1)
                     if blocq is not None:
                         if not blocq[0].solid and not blocq[1].solid and (block[0].solid or block[1].solid):
-                            block[0].containing = Block(block[0].position, block[0].size, chunq, self.textures["grass"],
-                                                        None, (0, 0, 0), "Grass", "Looks comfy enough to lie down on and take a short break.",
-                                                        hardness=0)
-                            block[1].containing = Block(block[0].position, block[0].size, chunq, self.textures["grass"],
-                                                        None, (0, 0, 0), "Grass", "Looks comfy enough to lie down on and take a short break.",
-                                                        hardness=0)
+                            block[0].containing = Block(block[0].position,
+                                                        block[0].size,
+                                                        chunq,
+                                                        self.textures[grass["texture"]],
+                                                        None,
+                                                        (0, 0, 0),
+                                                        grass.get("name", ""),
+                                                        grass.get("description", ""),
+                                                        hardness=grass.get("hardness", 0))
+                            block[1].containing = Block(block[0].position,
+                                                        block[0].size,
+                                                        chunq,
+                                                        self.textures[grass["texture"]],
+                                                        None,
+                                                        (0, 0, 0),
+                                                        grass.get("name", ""),
+                                                        grass.get("description", ""),
+                                                        hardness=grass.get("hardness", 0))
+                            block[0].hardness += block[0].containing.hardness
+                            block[1].hardness += block[1].containing.hardness
             value += 1
             self.display_loading_text(screen, background, "Apply Block Variation...", round(value / max_value * 100))
 
@@ -85,9 +101,9 @@ class World:
 
     def load_textures(self, screen, background):
         self.display_loading_text(screen, background, "Loading Textures...", 0)
-        self.textures["test0"] = pygame.image.load("textures/blocks/test00.png")
+        self.textures["test00"] = pygame.image.load("textures/blocks/test00.png")
         self.display_loading_text(screen, background, "Loading Textures...", 0.33)
-        self.textures["test1"] = pygame.image.load("textures/blocks/test02.png")
+        self.textures["test01"] = pygame.image.load("textures/blocks/test02.png")
         self.display_loading_text(screen, background, "Loading Textures...", 0.67)
         self.textures["grass"] = pygame.image.load("textures/blocks/grass.png")
         self.display_loading_text(screen, background, "Loading Textures...", 1)
@@ -173,7 +189,7 @@ class World:
                             self.player.mining_device.tool = 0
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = 1
-                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size))
+                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
                     elif event.key == pygame.K_s:
                         self.down_fall = 1
                 elif event.type == pygame.KEYUP:
@@ -183,7 +199,7 @@ class World:
                         self.move_right = False
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = self.player.mining_device.original_size
-                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size))
+                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
                     elif event.key == pygame.K_s:
                         self.down_fall = 0
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -198,6 +214,8 @@ class World:
                         self.tool_active = False
             else:
                 self.chat_active = self.chat.enter_text(event, self.player)
+                if not self.chat_active:
+                    self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), player, self.textures)
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
 
@@ -234,10 +252,11 @@ class World:
 
         if self.player.mining_device.tool != 2:
             self.player.mining_device.draw_affected_area(background,
-                                                         zoom_factor * self.general_block_size,
+                                                         int(zoom_factor * self.general_block_size),
                                                          self.player,
                                                          center_x,
-                                                         center_y)
+                                                         center_y,
+                                                         self.textures)
 
         if self.chat_active:
             background.blit(self.chat.process(tickrate), (0, 0))
@@ -553,16 +572,16 @@ class World:
                                                 chunq.state = 2
                                         update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                        [block_y % self.general_chunk_size])
-                            elif self.player.mining_device.tool == 1:
+                            elif self.player.mining_device.tool == 1 and self.player.block is not None:
                                 if chunq.blocks[block_x % self.general_chunk_size][
                                         block_y % self.general_chunk_size][self.player.mining_device.mode].place(
                                         (random.randint(0, 123),
                                          random.randint(0, 255),
                                          random.randint(0, 255)),
-                                        "Test Block",
-                                        "This is a test description",
-                                        1,
-                                        self.textures["test0"],
+                                        self.player.block.get("name", "Default block name"),
+                                        self.player.block.get("description", "Default block description"),
+                                        self.player.block.get("hardness", 0),
+                                        self.textures[self.player.block["texture"]],
                                         int(self.general_block_size * zoom_factor)):
                                     if not chunq.blocks[block_x % self.general_chunk_size][
                                             block_y % self.general_chunk_size][self.player.mining_device.mode - 1].solid:
