@@ -42,8 +42,8 @@ class PlacedObject:
     def animate(self, tickrate):
         amount_of_textures = len(self.textures)
         if amount_of_textures > 1:
-            if self.animation_state + tickrate > amount_of_textures * self.frame_length:
-                self.animation_state = 0
+            if self.animation_state > amount_of_textures * self.frame_length:
+                self.animation_state -= amount_of_textures * self.frame_length
             else:
                 self.animation_state += tickrate
 
