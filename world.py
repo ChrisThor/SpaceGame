@@ -215,7 +215,7 @@ class World:
             else:
                 self.chat_active = self.chat.enter_text(event, self.player)
                 if not self.chat_active:
-                    self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), player, self.textures)
+                    self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
 
         self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
 
