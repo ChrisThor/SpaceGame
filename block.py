@@ -42,6 +42,7 @@ class Block:
         self.shade = pygame.Surface((int(self.size), int(self.size)))
         self.old_zoom_factor = 0
         self.containing = containing
+        self.related_object = None
 
     def dismantle(self, mining_device, tickrate):
         if self.hardness > 0:
@@ -53,8 +54,17 @@ class Block:
             self.solid_top = False
             self.containing = None
             return True
+        elif self.related_object is not None:
+            if not self.related_object.touched:
+                if self.related_object.hardness > 0:
+                    self.related_object.hardness -= mining_device.mining_speed * tickrate
+                else:
+                    self.related_object.disabled = True
+                    self.related_object.delete_blocks()
+                    # self.related_object = None
         else:
-            return False
+            pass
+        return False
 
     def place(self, colour, name, description, hardness, texture, zoom):
         if not self.solid:

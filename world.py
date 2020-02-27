@@ -244,7 +244,11 @@ class World:
         for chunq in self.active_chunks:
             objects_on_chunks += chunq.draw_chunk([background, foreground], center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
         for object_on_chunk in objects_on_chunks:
-            object_on_chunk.draw_object(background, self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
+            if not object_on_chunk.disabled:
+                object_on_chunk.draw_object(background, self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
+            else:
+                # objects_on_chunks.remove(object_on_chunk)
+                pass
 
         self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
 
@@ -514,12 +518,26 @@ class World:
                                                                      self.player.flip_texture,
                                                                      object_template.get("drop", True),
                                                                      float(object_template.get("animation_tick", 0.16666666)))
-                        for chunq in self.chunks:
+                        for chunq in self.active_chunks:
                             if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y:
+                                size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
+                                for x in range(size[0]):
+                                    for y in range(size[1]):
+                                        block = chunq.get_block_relative_to_block(
+                                            self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
+                                            self.active_chunks,
+                                            x,
+                                            -y - 1
+                                        )
+                                        if block[0].related_object is not None:
+                                            if not block[0].related_object.disabled:
+                                                self.tool_active = False
+                        for chunq in self.active_chunks:
+                            if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y and self.tool_active:
                                 chunq.placed_objects.append(object_to_place)
-                                if object_template.get("solid_top", False):
-                                    size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
-                                    for x in range(size[0]):
+                                size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
+                                for x in range(size[0]):
+                                    if object_template.get("solid_top", False):
                                         block = chunq.get_block_relative_to_block(
                                             self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
                                             self.active_chunks,
@@ -527,6 +545,16 @@ class World:
                                             -size[1]
                                         )
                                         block[0].solid_top = True
+                                        object_to_place.changed_blocks.append(block[0])
+                                    for y in range(size[1]):
+                                        block = chunq.get_block_relative_to_block(
+                                            self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
+                                            self.active_chunks,
+                                            x,
+                                            -y - 1
+                                        )
+                                        object_to_place.recieving_blocks.append(block[0])
+                                        block[0].related_object = object_to_place
 
                     self.tool_active = False
 

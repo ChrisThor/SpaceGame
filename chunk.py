@@ -66,16 +66,15 @@ class Chunk:
             self.draw_black_chunk(surfaces[1], center_x, center_y, player, zoom_factor, colour)
 
         for object_on_chunk in self.placed_objects:
-            if self.block_offset is None:
-                if object_on_chunk.block_offset is not None:
-                    object_on_chunk.block_offset = None
+            if not object_on_chunk.disabled:
+                if self.block_offset is None:
+                    if object_on_chunk.block_offset is not None:
+                        object_on_chunk.block_offset = None
                 else:
-                    break
+                    if object_on_chunk.block_offset is None:
+                        object_on_chunk.block_offset = self.block_offset
             else:
-                if object_on_chunk.block_offset is None:
-                    object_on_chunk.block_offset = self.block_offset
-                else:
-                    break
+                self.placed_objects.remove(object_on_chunk)
         return self.placed_objects
 
     def get_block_relative_to_block(self, bloq, active_chunks, x_offset=0, y_offset=0):
