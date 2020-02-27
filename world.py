@@ -217,7 +217,8 @@ class World:
                 if not self.chat_active:
                     self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
 
-        self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, background)
+        foreground = self.transparent_surface.copy()
+        self.dismantle_blocks(center_x, center_y, zoom_factor, tickrate, foreground)
 
         self.get_collision_blocks()
 
@@ -237,8 +238,6 @@ class World:
 
         self.apply_gravity(tickrate)
         self.apply_speed(tickrate)
-
-        foreground = self.transparent_surface.copy()
 
         objects_on_chunks = []
         for chunq in self.active_chunks:
@@ -482,7 +481,7 @@ class World:
                     block.alternate_colour = self.player.side_block_colour
                     self.player.right_side_blocks.append(block)
 
-    def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate, background):
+    def dismantle_blocks(self, center_x, center_y, zoom_factor, tickrate, foreground):
         mouse_position = pygame.mouse.get_pos()
         block_pos_x = \
             math.floor(((mouse_position[0] - center_x) / (
@@ -497,7 +496,7 @@ class World:
                 area_y_1 = block_pos_y
                 blueprint_position = vector.Vector(block_pos_x,
                                                    block_pos_y + 1)
-                self.player.blueprint.draw_blueprint(background,
+                self.player.blueprint.draw_blueprint(foreground,
                                                      self.player,
                                                      zoom_factor,
                                                      center_x,
