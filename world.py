@@ -532,6 +532,8 @@ class World:
                                         if block[0].related_object is not None:
                                             if not block[0].related_object.disabled:
                                                 self.tool_active = False
+                                        elif block[0].solid:
+                                            self.tool_active = False
                         for chunq in self.active_chunks:
                             if chunq.position.x_value == chunk_x and chunq.position.y_value == chunk_y and self.tool_active:
                                 chunq.placed_objects.append(object_to_place)
