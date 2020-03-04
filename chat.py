@@ -79,25 +79,33 @@ class Chat:
 
         elif command[0] == "tp":
             if len(command) == 3:
-                if command[1] != "~":
-                    try:
-                        if "~" in command[1]:
-                            player.position.x_value += float(command[1][1:])
-                        else:
-                            player.position.x_value = float(command[1])
-                    except ValueError:
-                        pass
-                if command[2] != "~":
-                    try:
-                        if "~" in command[2]:
-                            player.position.y_value += float(command[2][1:])
-                        else:
-                            player.position.y_value = float(command[2])
-                    except ValueError:
-                        pass
+                self.edit_position(command, player.position)
             elif len(command) == 2:
                 if command[1] == "spawn":
-                    player.position = player.start_position
+                    player.position = player.start_position.copy()
                     player.position.y_value -= 0.1
                     player.speed *= 0
+        elif command[0] == "setspawn":
+            if len(command) == 1:
+                player.start_position = player.position.copy()
+            elif len(command) == 3:
+                self.edit_position(command, player.start_position)
         self.text = ""
+
+    def edit_position(self, command, position):
+        if command[1] != "~":
+            try:
+                if "~" in command[1]:
+                    position.x_value += float(command[1][1:])
+                else:
+                    position.x_value = float(command[1])
+            except ValueError:
+                pass
+        if command[2] != "~":
+            try:
+                if "~" in command[2]:
+                    position.y_value += float(command[2][1:])
+                else:
+                    position.y_value = float(command[2])
+            except ValueError:
+                pass
