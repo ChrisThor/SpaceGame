@@ -88,6 +88,7 @@ class World:
                     elif y > block.position.y_value:
                         y = block.position.y_value
         self.player.position.y_value = y
+        self.player.start_position = self.player.position.copy()
 
     def start_debug_mode(self):
         self.player.bottom_block_colour = (255, 0, 255)

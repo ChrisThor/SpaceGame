@@ -60,8 +60,8 @@ class Chat:
         if len(self.history) == 0 or self.history[len(self.history) - 1] != self.text:
             self.history.append(self.text)
         command = self.text.split(" ")
-        if len(command) == 3:
-            if command[0] == "give":
+        if command[0] == "give":
+            if len(command) == 3:
                 if command[1] == "object" or command[1] == "o":
                     objects = os.listdir("world_objects/objects")
                     if f"{command[2]}.yaml" in objects:
@@ -77,7 +77,8 @@ class Chat:
                             player.mining_device.tool = 1
                             player.block = yaml.safe_load(file)
 
-            elif command[0] == "tp":
+        elif command[0] == "tp":
+            if len(command) == 3:
                 if command[1] != "~":
                     try:
                         if "~" in command[1]:
@@ -94,4 +95,9 @@ class Chat:
                             player.position.y_value = float(command[2])
                     except ValueError:
                         pass
+            elif len(command) == 2:
+                if command[1] == "spawn":
+                    player.position = player.start_position
+                    player.position.y_value -= 0.1
+                    player.speed *= 0
         self.text = ""
