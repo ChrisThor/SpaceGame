@@ -522,12 +522,10 @@ class World:
                                 size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
                                 for x in range(size[0]):
                                     for y in range(size[1]):
-                                        block = chunq.get_block_relative_to_block(
+                                        block = self.get_relative_block(
                                             self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
-                                            self.active_chunks,
                                             x,
-                                            -y - 1
-                                        )
+                                            -y - 1)
                                         if block[0].related_object is not None:
                                             if not block[0].related_object.disabled:
                                                 self.tool_active = False
@@ -539,21 +537,19 @@ class World:
                                 size = [math.ceil(object_to_place.size[0] / 8), math.ceil(object_to_place.size[1] / 8)]
                                 for x in range(size[0]):
                                     if object_template.get("solid_top", False):
-                                        block = chunq.get_block_relative_to_block(
-                                            self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
-                                            self.active_chunks,
+                                        block = self.get_relative_block(
+                                            self.all_blocks[
+                                                f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][
+                                                0],
                                             x,
-                                            -size[1]
-                                        )
+                                            -size[1])
                                         block[0].solid_top = True
                                         object_to_place.changed_blocks.append(block[0])
                                     for y in range(size[1]):
-                                        block = chunq.get_block_relative_to_block(
+                                        block = self.get_relative_block(
                                             self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
-                                            self.active_chunks,
                                             x,
-                                            -y - 1
-                                        )
+                                            -y - 1)
                                         object_to_place.recieving_blocks.append(block[0])
                                         block[0].related_object = object_to_place
 
@@ -691,3 +687,12 @@ class World:
                 continue
             else:
                 chunq.state = 1
+
+    def get_relative_block(self, block, x_offset, y_offset):
+        rel_block = self.all_blocks.get(f"{block.position.x_value + x_offset}_{block.position.y_value + y_offset}", None)
+        if rel_block is None:
+            if block.position.x_value + x_offset >= self.width * self.general_chunk_size / 2:
+                rel_block = self.all_blocks.get(f"{block.position.x_value - self.width * self.general_chunk_size + x_offset}_{block.position.y_value + y_offset}")
+            elif block.position.x_value + x_offset < self.width * self.general_chunk_size / 2:
+                rel_block = self.all_blocks.get(f"{block.position.x_value + self.width * self.general_chunk_size + x_offset}_{block.position.y_value + y_offset}")
+        return rel_block
