@@ -161,6 +161,8 @@ class World:
                         running = False
                     elif event.key == pygame.K_RETURN:
                         self.chat_active = True
+                        self.move_left = False
+                        self.move_right = False
                     elif event.key == pygame.K_a:
                         self.move_left = True
                     elif event.key == pygame.K_d:
