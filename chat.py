@@ -57,6 +57,8 @@ class Chat:
 
     def interpret_command(self, player):
         print(self.text)
+        if self.text == "":
+            return
         if len(self.history) == 0 or self.history[len(self.history) - 1] != self.text:
             self.history.append(self.text)
         command = self.text.split(" ")
