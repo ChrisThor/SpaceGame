@@ -190,6 +190,8 @@ class World:
                             self.player.mining_device.tool += 1
                         else:
                             self.player.mining_device.tool = 0
+                        self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player,
+                                                              self.textures)
                     elif event.key == pygame.K_LCTRL:
                         self.player.mining_device.size = 1
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
