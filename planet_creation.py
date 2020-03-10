@@ -14,7 +14,8 @@ class NewPlanet:
         self.static = False
 
     def change_radius(self, value):
-        self.radius += value
+        if self.radius + value > 3:
+            self.radius += value
 
     def change_mass(self, value):
         self.mass += value * 5e12
