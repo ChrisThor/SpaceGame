@@ -134,7 +134,7 @@ def main():
 
         if loop_type == 0:
             background.fill((22, 22, 22))
-
+            nearest_space_thing, smallest_distance = get_smallest_distance_to_object(hope_ship, space)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -190,13 +190,6 @@ def main():
                             paused = True
                     elif event.key == pygame.K_l:
                         if not hope_ship.crashed:
-                            nearest_space_thing = space.space_objects[1]
-                            smallest_distance = 100
-                            for space_thing in space.space_objects:
-                                new_distance = (hope_ship.position - space_thing.position).get_length()
-                                if new_distance < smallest_distance and new_distance != 0:
-                                    smallest_distance = new_distance
-                                    nearest_space_thing = space_thing
                             if smallest_distance < nearest_space_thing.radius + 30:
                                 if nearest_space_thing.surface is None:
                                     nearest_space_thing.generate_world(background, screen)
@@ -313,7 +306,9 @@ def main():
                         if p.lifetime <= 0:
                             space.particles.remove(p)
                     space.apply_forces(hope_ship, debug_mode, particle_tick)
-
+            if smallest_distance < nearest_space_thing.radius + 30:
+                show_text("fonts/Roboto_Mono/RobotoMono-LightItalic.ttf", 50, (255, 0, 255), "Land (l)",
+                          (50, 0), background)
             draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
                        screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor)
             if takescreenshot:
@@ -335,6 +330,23 @@ def main():
 
         frame_end = time.time()
     pygame.quit()
+
+
+def get_smallest_distance_to_object(hope_ship, space):
+    nearest_space_thing = space.space_objects[1]
+    smallest_distance = 100
+    for space_thing in space.space_objects:
+        new_distance = (hope_ship.position - space_thing.position).get_length()
+        if new_distance < smallest_distance and new_distance != 0:
+            smallest_distance = new_distance
+            nearest_space_thing = space_thing
+    return nearest_space_thing, smallest_distance
+
+
+def show_text(font_type, font_size, font_colour, text, position, background):
+    font = pygame.font.Font(font_type, font_size)
+    font_text = font.render(text, True, font_colour).convert_alpha()
+    background.blit(font_text, position)
 
 
 def display_text(msg, zoom_factor):
