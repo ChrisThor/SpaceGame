@@ -47,3 +47,6 @@ class Vector:
         except ZeroDivisionError:
             return Vector()
         return Vector(x_value, y_value)
+
+    def copy(self):
+        return Vector(self.x_value, self.y_value)

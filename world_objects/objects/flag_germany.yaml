@@ -1,0 +1,11 @@
+textures:
+  - textures/objects/flag_germany_0.png
+  - textures/objects/flag_germany_1.png
+  - textures/objects/flag_germany_2.png
+  - textures/objects/flag_germany_3.png
+  - textures/objects/flag_germany_4.png
+  - textures/objects/flag_germany_5.png
+name: The German Flag
+description: Waving in the wind in all its glory...
+drop: True
+animation_tick: 0.16666666

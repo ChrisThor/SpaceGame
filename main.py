@@ -6,6 +6,8 @@ import space_object
 import space_ship
 import vector
 import star
+import world
+from screenshot import take_screenshot as t_s
 import random
 import portal
 import math
@@ -60,7 +62,7 @@ def draw_stars(static_stars, small_stars, big_stars, background, hope_ship, cent
 def main():
     pygame.init()
     print("\033[2J")
-    pygame.display.set_caption("SPAACE")
+    pygame.display.set_caption("STARBOUNCE")
 
     screen_height = 1000
     screen_width = 1800
@@ -82,6 +84,7 @@ def main():
     playtime = 0.0
     speed_factor = 1
     zoom_factor = 2
+    world_zoom_factor = 3
     center_x = int(screen_width / 2)
     center_y = int(screen_height / 2)
 
@@ -100,6 +103,9 @@ def main():
     #                                                         (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
     #                                                         show_health_bar=False))
 
+    # template_planet_surface = world.World(10, 32, background, screen)
+    template_planet_surface = None
+
     template_space_object = None
 
     running = True
@@ -112,10 +118,12 @@ def main():
     debug_mode = False
     paused = False
     change_temp_mass = False
+    takescreenshot = False
     particle_tick = 0
     framerate_stability_value = 0
+    loop_type = 0
     frame_start = time.time()
-    frame_end = time.time()
+    frame_end = frame_start + 1 / fps
 
     while running:
         milliseconds = clock.tick(fps)
@@ -124,181 +132,208 @@ def main():
         frame_start = time.time()
         fps, framerate_stability_value = manage_framerate(delta_frame, fps, framerate_stability_value, space)
 
-        background.fill((22, 22, 22))
+        if loop_type == 0:
+            background.fill((22, 22, 22))
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     running = False
-                elif event.key == pygame.K_UP:
-                    thrust_forward = True
-                elif event.key == pygame.K_DOWN:
-                    thrust_backwards = True
-                elif event.key == pygame.K_LEFT:
-                    turn_left = True
-                elif event.key == pygame.K_RIGHT:
-                    turn_right = True
-                elif event.key == pygame.K_g:
-                    break_to_zero = True
-                elif event.key == pygame.K_F1:
-                    if zoom_factor > 0.25:
-                        zoom_factor /= 2
-                    if round(zoom_factor, 1) == 1.00:
-                        zoom_factor = 1
-                elif event.key == pygame.K_F2:
-                    if zoom_factor < 128:
-                        zoom_factor *= 2
-                    if round(zoom_factor, 1) == 1.00:
-                        zoom_factor = 1
-                elif event.key == pygame.K_F3:
-                    if debug_mode:
-                        debug_mode = False
-                        print("\033[2J")
-                    else:
-                        debug_mode = True
-                elif event.key == pygame.K_SPACE:
-                    if not paused and not hope_ship.crashed:
-                        hope_ship.launch_bullet(space, fps)
-                elif event.key == pygame.K_w:
-                    if not paused:
-                        hope_ship.change_thrust_power(2)
-                elif event.key == pygame.K_s:
-                    if not paused:
-                        hope_ship.change_thrust_power(0.5)
-                elif event.key == pygame.K_v:
-                    if draw_vectors:
-                        draw_vectors = False
-                    else:
-                        draw_vectors = True
-                elif event.key == pygame.K_p:
-                    if paused:
-                        paused = False
-                    else:
-                        paused = True
-                elif event.key == pygame.K_e:
-                    if not paused:
-                        speed_factor += 1
-                    else:
-                        paused = False
-                elif event.key == pygame.K_q:
-                    if speed_factor - 1 == 0:
-                        paused = True
-                    elif not paused:
-                        speed_factor -= 1
-                elif event.key == pygame.K_c:
-                    if template_space_object is not None:
-                        template_space_object.static = True
-                elif event.key == pygame.K_x:
-                    if change_temp_mass:
-                        change_temp_mass = False
-                    else:
-                        change_temp_mass = True
-                elif event.key == pygame.K_F5:
-                    save_space_objects(space.space_objects)
-                elif event.key == pygame.K_F9:
-                    hope_ship = load_space_objects(space, hope_ship)
-                    space.particles = []
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    thrust_forward = False
-                    thrust_backwards = False
-                    hope_ship.apply_thrust(0, space, fps)
-                elif event.key == pygame.K_g:
-                    hope_ship.apply_thrust(0, space, fps)
-                    break_to_zero = False
-                elif event.key == pygame.K_LEFT:
-                    turn_left = False
-                elif event.key == pygame.K_RIGHT:
-                    turn_right = False
-                elif event.key == pygame.K_c:
-                    if template_space_object is not None:
-                        template_space_object.static = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                keys = pygame.mouse.get_pressed()
-                if keys[0] == 1:
-                    if template_space_object is None:
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                    elif event.key == pygame.K_UP:
+                        thrust_forward = True
+                    elif event.key == pygame.K_DOWN:
+                        thrust_backwards = True
+                    elif event.key == pygame.K_LEFT:
+                        turn_left = True
+                    elif event.key == pygame.K_RIGHT:
+                        turn_right = True
+                    elif event.key == pygame.K_g:
+                        break_to_zero = True
+                    elif event.key == pygame.K_F1:
+                        if zoom_factor > 0.25:
+                            zoom_factor /= 2
+                        if round(zoom_factor, 1) == 1.00:
+                            zoom_factor = 1
+                    elif event.key == pygame.K_F2:
+                        if zoom_factor < 128:
+                            zoom_factor *= 2
+                        if round(zoom_factor, 1) == 1.00:
+                            zoom_factor = 1
+                    elif event.key == pygame.K_F3:
+                        if debug_mode:
+                            debug_mode = False
+                            print("\033[2J")
+                        else:
+                            debug_mode = True
+                    elif event.key == pygame.K_F12:
+                        takescreenshot = True
+                    elif event.key == pygame.K_SPACE:
+                        if not paused:
+                            hope_ship.launch_bullet(space, fps)
+                    elif event.key == pygame.K_w:
+                        if not paused:
+                            hope_ship.change_thrust_power(2)
+                    elif event.key == pygame.K_s:
+                        if not paused:
+                            hope_ship.change_thrust_power(0.5)
+                    elif event.key == pygame.K_v:
+                        if draw_vectors:
+                            draw_vectors = False
+                        else:
+                            draw_vectors = True
+                    elif event.key == pygame.K_p:
+                        if paused:
+                            paused = False
+                        else:
+                            paused = True
+                    elif event.key == pygame.K_l:
+                        if not hope_ship.crashed:
+                            nearest_space_thing = space.space_objects[1]
+                            smallest_distance = 100
+                            for space_thing in space.space_objects:
+                                new_distance = (hope_ship.position - space_thing.position).get_length()
+                                if new_distance < smallest_distance and new_distance != 0:
+                                    smallest_distance = new_distance
+                                    nearest_space_thing = space_thing
+                            if smallest_distance < nearest_space_thing.radius + 30:
+                                if nearest_space_thing.surface is None:
+                                    nearest_space_thing.generate_world(background, screen)
+                                    template_planet_surface = nearest_space_thing.surface
+                                else:
+                                    template_planet_surface = nearest_space_thing.surface
+                                    template_planet_surface.player.position = template_planet_surface.player.start_position
+                                loop_type = 1
+                    elif event.key == pygame.K_e:
+                        if not paused:
+                            speed_factor += 1
+                        else:
+                            paused = False
+                    elif event.key == pygame.K_q:
+                        if speed_factor - 1 == 0:
+                            paused = True
+                        elif not paused:
+                            speed_factor -= 1
+                    elif event.key == pygame.K_c:
+                        if template_space_object is not None:
+                            template_space_object.static = True
+                    elif event.key == pygame.K_x:
+                        if change_temp_mass:
+                            change_temp_mass = False
+                        else:
+                            change_temp_mass = True
+                    elif event.key == pygame.K_F5:
+                        save_space_objects(space.space_objects)
+                    elif event.key == pygame.K_F9:
+                        hope_ship = load_space_objects(space, hope_ship)
+                        space.particles = []
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                        thrust_forward = False
+                        thrust_backwards = False
+                        hope_ship.apply_thrust(0, space, fps)
+                    elif event.key == pygame.K_g:
+                        hope_ship.apply_thrust(0, space, fps)
+                        break_to_zero = False
+                    elif event.key == pygame.K_LEFT:
+                        turn_left = False
+                    elif event.key == pygame.K_RIGHT:
+                        turn_right = False
+                    elif event.key == pygame.K_c:
+                        if template_space_object is not None:
+                            template_space_object.static = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    keys = pygame.mouse.get_pressed()
+                    if keys[0] == 1:
+                        if template_space_object is None:
+                            mouse_position = pygame.mouse.get_pos()
+                            pos_x = (mouse_position[0] - center_x) / zoom_factor + hope_ship.position.x_value
+                            pos_y = (mouse_position[1] - center_y) / zoom_factor + hope_ship.position.y_value
+                            template_space_object = planet_creation.NewPlanet(vector.Vector(pos_x, pos_y))
+                        else:
+                            space.space_objects.append(space_object.SpaceObject("SpaceObject",
+                                                                                template_space_object.mass,
+                                                                                template_space_object.radius,
+                                                                                template_space_object.speed.x_value,
+                                                                                template_space_object.speed.y_value,
+                                                                                template_space_object.position.x_value,
+                                                                                template_space_object.position.y_value,
+                                                                                template_space_object.particle_colour,
+                                                                                template_space_object.particle_lifetime,
+                                                                                static=template_space_object.static))
+                            template_space_object = None
+                    elif event.button == 3 and template_space_object is not None:
                         mouse_position = pygame.mouse.get_pos()
-                        pos_x = (mouse_position[0] - center_x) / zoom_factor + hope_ship.position.x_value
-                        pos_y = (mouse_position[1] - center_y) / zoom_factor + hope_ship.position.y_value
-                        template_space_object = planet_creation.NewPlanet(vector.Vector(pos_x, pos_y))
+                        end_x = (mouse_position[0] - center_x) / zoom_factor + hope_ship.position.x_value
+                        end_y = (mouse_position[1] - center_y) / zoom_factor + hope_ship.position.y_value
+                        speed_x = end_x - template_space_object.position.x_value
+                        speed_y = end_y - template_space_object.position.y_value
+                        template_space_object.speed = vector.Vector(speed_x, speed_y)
+                    elif event.button == 4 and template_space_object is not None:
+                        if change_temp_mass:
+                            template_space_object.change_mass(1)
+                        else:
+                            template_space_object.change_radius(3)
+                    elif event.button == 5 and template_space_object is not None:
+                        if change_temp_mass:
+                            template_space_object.change_mass(-1)
+                        else:
+                            template_space_object.change_radius(-3)
+            if not paused:
+                if break_to_zero:
+                    hope_ship.break_to_zero()
+                elif thrust_forward:
+                    hope_ship.apply_thrust(1, space, fps)
+                elif thrust_backwards:
+                    hope_ship.apply_thrust(-1, space, fps)
+                if turn_left:
+                    hope_ship.turn_left(space, fps)
+                elif turn_right:
+                    hope_ship.turn_right(space, fps)
+                if template_space_object is not None:
+                    paused = True
+            elif template_space_object is not None:
+                relative_distance_to_hope_ship = (template_space_object.position - hope_ship.position) * zoom_factor
+                pos_x_on_screen = int(center_x + relative_distance_to_hope_ship.x_value)
+                pos_y_on_screen = int(center_y + relative_distance_to_hope_ship.y_value)
+                template_space_object.draw_speed_vector(background, zoom_factor, pos_x_on_screen, pos_y_on_screen)
+
+            print("\033[H", end="")
+            if not paused:
+
+                for c in range(speed_factor):
+                    playtime += milliseconds / 1000
+                    if particle_tick >= 1 / 3:
+                        particle_tick = 0
                     else:
-                        space.space_objects.append(space_object.SpaceObject("SpaceObject",
-                                                                            template_space_object.mass,
-                                                                            template_space_object.radius,
-                                                                            template_space_object.speed.x_value,
-                                                                            template_space_object.speed.y_value,
-                                                                            template_space_object.position.x_value,
-                                                                            template_space_object.position.y_value,
-                                                                            template_space_object.particle_colour,
-                                                                            template_space_object.particle_lifetime,
-                                                                            static=template_space_object.static))
-                        template_space_object = None
-                elif event.button == 3 and template_space_object is not None:
-                    mouse_position = pygame.mouse.get_pos()
-                    end_x = (mouse_position[0] - center_x) / zoom_factor + hope_ship.position.x_value
-                    end_y = (mouse_position[1] - center_y) / zoom_factor + hope_ship.position.y_value
-                    speed_x = end_x - template_space_object.position.x_value
-                    speed_y = end_y - template_space_object.position.y_value
-                    template_space_object.speed = vector.Vector(speed_x, speed_y)
-                elif event.button == 4 and template_space_object is not None:
-                    if change_temp_mass:
-                        template_space_object.change_mass(1)
-                    else:
-                        template_space_object.change_radius(3)
-                elif event.button == 5 and template_space_object is not None:
-                    if change_temp_mass:
-                        template_space_object.change_mass(-1)
-                    else:
-                        template_space_object.change_radius(-3)
-        if not paused:
-            if break_to_zero:
-                hope_ship.break_to_zero()
-            elif thrust_forward:
-                hope_ship.apply_thrust(1, space, fps)
-            elif thrust_backwards:
-                hope_ship.apply_thrust(-1, space, fps)
-            if turn_left:
-                hope_ship.turn_left(space, fps)
-            elif turn_right:
-                hope_ship.turn_right(space, fps)
-            if template_space_object is not None:
+                        particle_tick += space.tickrate
+                    for p in space.particles:
+                        p.tick(space.tickrate)
+                        if p.lifetime <= 0:
+                            space.particles.remove(p)
+                    space.apply_forces(hope_ship, debug_mode, particle_tick)
+
+            draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
+                       screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor)
+            if takescreenshot:
+                t_s(background)
+                takescreenshot = False
+        elif loop_type == 1:
+            background.fill((150, 150, 255))
+            running, world_zoom_factor, loop_type = template_planet_surface.access_surface(background, center_x, center_y, world_zoom_factor, space.tickrate, loop_type)
+            screen.blit(background, (0, 0))
+            pygame.display.flip()
+            if loop_type == 0:
                 paused = True
-        elif template_space_object is not None:
-            relative_distance_to_hope_ship = (template_space_object.position - hope_ship.position) * zoom_factor
-            pos_x_on_screen = int(center_x + relative_distance_to_hope_ship.x_value)
-            pos_y_on_screen = int(center_y + relative_distance_to_hope_ship.y_value)
-            template_space_object.draw_speed_vector(background, zoom_factor, pos_x_on_screen, pos_y_on_screen)
-
-        print("\033[H", end="")
         if not paused:
-
-            for c in range(speed_factor):
-                playtime += milliseconds / 1000
-                if particle_tick >= 1 / 3:
-                    particle_tick = 0
-                else:
-                    particle_tick += space.tickrate
-                for p in space.particles:
-                    p.tick(space.tickrate)
-                    if p.lifetime <= 0:
-                        space.particles.remove(p)
-                space.apply_forces(hope_ship, debug_mode, particle_tick)
-
-        draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
-                   screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor)
-
-        if not paused:
-            pygame.display.set_caption(f"SPAACE fps: {fps} - playtime: {round(playtime, 2)}")
+            pygame.display.set_caption(f"STARBOUNCE fps: {fps} - playtime: {round(playtime, 2)}")
         else:
-            pygame.display.set_caption(f"SPAACE fps: {fps} - playtime: {round(playtime, 2)}  PAUSED")
+            pygame.display.set_caption(f"STARBOUNCE fps: {fps} - playtime: {round(playtime, 2)}  PAUSED")
             if particle_tick >= 1 / 3:
                 particle_tick = 0
+
         frame_end = time.time()
-        print(f"Deltaframe: {round(delta_frame, 4)}    ")
-        print(f"Tickrate:   {round(space.tickrate, 4)}   \n"
-              f"                                   ")
     pygame.quit()
 
 
@@ -410,63 +445,14 @@ def draw_particles(background, center_x, center_y, hope_ship, screen_width, spac
 
 
 def manage_framerate(delta_frame, fps, framerate_stability_value, space):
-    if fps == 120:
-        if delta_frame > 1 / 122:
-            fps = 60
-            space.tickrate = 1 / fps
-        framerate_stability_value = 0
-    if fps == 60:
-        if delta_frame > 1 / 61:
-            fps = 30
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 122:
-            if framerate_stability_value > 1:
-                fps = 120
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 30:
-        if delta_frame > 1 / 30.5:
-            fps = 15
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 61:
-            if framerate_stability_value > 1:
-                fps = 60
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 15:
-        if delta_frame > 1 / 15:
-            fps = 10
-            space.tickrate = 1 / fps
-            framerate_stability_value = 0
-        elif delta_frame < 1 / 30.5:
-            if framerate_stability_value > 1:
-                fps = 30
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
-    if fps == 10:
-        if delta_frame < 1 / 15:
-            if framerate_stability_value > 1:
-                fps = 15
-                space.tickrate = 1 / fps
-                framerate_stability_value = 0
-            else:
-                framerate_stability_value += space.tickrate
-        else:
-            framerate_stability_value = 0
+    if delta_frame < .5:
+        """
+        This if-statement prevents giant steps and tickrates. When the window is moved, processing stops until it is
+        released. Half a second should be a good balance, as I assume that there will never be a normal frame that takes
+        longer to calculate than that.
+        """
+        space.tickrate = delta_frame
+        fps = int(1 / delta_frame)
     return fps, framerate_stability_value
 
 
