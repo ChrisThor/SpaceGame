@@ -7,6 +7,7 @@ import space_ship
 import vector
 import star
 import world
+from screenshot import take_screenshot as t_s
 import random
 import portal
 import math
@@ -116,6 +117,7 @@ def main():
     debug_mode = False
     paused = False
     change_temp_mass = False
+    takescreenshot = False
     particle_tick = 0
     framerate_stability_value = 0
     loop_type = 1
@@ -164,6 +166,8 @@ def main():
                             print("\033[2J")
                         else:
                             debug_mode = True
+                    elif event.key == pygame.K_F12:
+                        takescreenshot = True
                     elif event.key == pygame.K_SPACE:
                         if not paused:
                             hope_ship.launch_bullet(space, fps)
@@ -294,6 +298,9 @@ def main():
 
             draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
                        screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor)
+            if takescreenshot:
+                t_s(background)
+                takescreenshot = False
         elif loop_type == 1:
             background.fill((150, 150, 255))
             running, world_zoom_factor = template_planet_surface.access_surface(background, center_x, center_y, world_zoom_factor, space.tickrate)
