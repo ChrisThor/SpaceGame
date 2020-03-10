@@ -149,7 +149,7 @@ class World:
                     all_blocks[f"{block[0].position.x_value}_{block[0].position.y_value}"] = block
         return all_blocks
 
-    def access_surface(self, background, center_x, center_y, zoom_factor, tickrate):
+    def access_surface(self, background, center_x, center_y, zoom_factor, tickrate, loop_type):
         running = True
         self.get_active_chunks()
         for event in pygame.event.get():
@@ -207,6 +207,8 @@ class World:
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
                     elif event.key == pygame.K_s:
                         self.down_fall = 0
+                    elif event.key == pygame.K_k:
+                        loop_type = 0
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.player.mining_device.mode = 0
@@ -273,7 +275,7 @@ class World:
             take_screenshot(background)
             self.take_screenshot = False
 
-        return running, zoom_factor
+        return running, zoom_factor, loop_type
 
     def apply_gravity(self, tickrate):
         gravity = 50

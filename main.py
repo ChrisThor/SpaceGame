@@ -103,7 +103,8 @@ def main():
     #                                                         (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
     #                                                         show_health_bar=False))
 
-    template_planet_surface = world.World(10, 32, background, screen)
+    # template_planet_surface = world.World(10, 32, background, screen)
+    template_planet_surface = None
 
     template_space_object = None
 
@@ -120,7 +121,7 @@ def main():
     takescreenshot = False
     particle_tick = 0
     framerate_stability_value = 0
-    loop_type = 1
+    loop_type = 0
     frame_start = time.time()
     frame_end = frame_start + 1 / fps
 
@@ -187,6 +188,23 @@ def main():
                             paused = False
                         else:
                             paused = True
+                    elif event.key == pygame.K_l:
+                        if not hope_ship.crashed:
+                            nearest_space_thing = space.space_objects[1]
+                            smallest_distance = 100
+                            for space_thing in space.space_objects:
+                                new_distance = (hope_ship.position - space_thing.position).get_length()
+                                if new_distance < smallest_distance and new_distance != 0:
+                                    smallest_distance = new_distance
+                                    nearest_space_thing = space_thing
+                            if smallest_distance < nearest_space_thing.radius + 30:
+                                if nearest_space_thing.surface is None:
+                                    nearest_space_thing.generate_world(background, screen)
+                                    template_planet_surface = nearest_space_thing.surface
+                                else:
+                                    template_planet_surface = nearest_space_thing.surface
+                                    template_planet_surface.player.position = template_planet_surface.player.start_position
+                                loop_type = 1
                     elif event.key == pygame.K_e:
                         if not paused:
                             speed_factor += 1
@@ -303,9 +321,11 @@ def main():
                 takescreenshot = False
         elif loop_type == 1:
             background.fill((150, 150, 255))
-            running, world_zoom_factor = template_planet_surface.access_surface(background, center_x, center_y, world_zoom_factor, space.tickrate)
+            running, world_zoom_factor, loop_type = template_planet_surface.access_surface(background, center_x, center_y, world_zoom_factor, space.tickrate, loop_type)
             screen.blit(background, (0, 0))
             pygame.display.flip()
+            if loop_type == 0:
+                paused = True
         if not paused:
             pygame.display.set_caption(f"STARBOUNCE fps: {fps} - playtime: {round(playtime, 2)}")
         else:
