@@ -28,22 +28,23 @@ class Space:
                 space_object2 += space_object1
             else:
                 space_object1 += space_object2
-        elif not space_object1.static:
-            try:
-                direction_x = (1 / math.sqrt(distance.x_value**2 + distance.y_value**2)) * distance.x_value
-            except ZeroDivisionError:
-                direction_x = 0
-            try:
-                direction_y = (1 / math.sqrt(distance.x_value**2 + distance.y_value**2)) * distance.y_value
-            except ZeroDivisionError:
-                direction_y = 0
-            if distance.get_length() == 0:
-                force = 0
-            else:
-                force = self.gravitational_constant * space_object2.mass / distance.get_length() ** 2
-            force_vector = vector.Vector(force * direction_x, force * direction_y)
-            return force_vector
-        return vector.Vector()
+        try:
+            direction_x = (1 / math.sqrt(distance.x_value**2 + distance.y_value**2)) * distance.x_value
+        except ZeroDivisionError:
+            direction_x = 0
+        try:
+            direction_y = (1 / math.sqrt(distance.x_value**2 + distance.y_value**2)) * distance.y_value
+        except ZeroDivisionError:
+            direction_y = 0
+        if distance.get_length() == 0:
+            force1 = 0
+            force2 = 0
+        else:
+            force1 = self.gravitational_constant * space_object2.mass / distance.get_length() ** 2
+            force2 = self.gravitational_constant * space_object1.mass / distance.get_length() ** 2
+        force_vector1 = vector.Vector(force1 * direction_x, force1 * direction_y)
+        force_vector2 = vector.Vector(force2 * direction_x, force2 * direction_y)
+        return force_vector1, force_vector2
 
     def apply_forces(self, hope_ship, debug_mode, particle_tick):
         """
@@ -75,9 +76,11 @@ class Space:
         It also produces particles for every space object to avoid having to go through another loop
         :return:
         """
+        for space_thing in self.space_objects:
+            space_thing.reset_acceleration()
+        a = 0
         for space_thing in range(len(self.space_objects)):
             space_thing1: space_object.SpaceObject = self.space_objects[space_thing]
-            space_thing1.reset_acceleration()
 
             if not space_thing1.crashed and particle_tick >= 1 / 3:
                 self.particles.append(particle.Particle(space_thing1.particle_colour,
@@ -88,16 +91,23 @@ class Space:
                                                         2,
                                                         False))
 
-            for other_space_thing in range(len(self.space_objects)):
-                if space_thing != other_space_thing:
-                    space_thing2: space_object.SpaceObject = self.space_objects[other_space_thing]
-                    if not space_thing1.crashed and not space_thing2.crashed:
-                        space_thing1.acceleration += self.calculate_acceleration_from_force(space_thing1, space_thing2)
-                        if space_thing1.crashed:
-                            space_thing1.reset_acceleration()
+            for other_space_thing in range(space_thing + 1, len(self.space_objects)):
+                space_thing2: space_object.SpaceObject = self.space_objects[other_space_thing]
+                if not space_thing1.crashed and not space_thing2.crashed:
+                    a += 1
+                    acceleration1, acceleration2 = self.calculate_acceleration_from_force(space_thing1, space_thing2)
+                    if not space_thing1.crashed and not space_thing1.static:
+                        space_thing1.acceleration += acceleration1
+                    else:
+                        space_thing1.reset_acceleration()
+                    if not space_thing2.crashed and not space_thing2.static:
+                        space_thing2.acceleration -= acceleration2
+                    else:
+                        space_thing2.reset_acceleration()
             if space_thing1.output_portal is not None:
                 if (space_thing1.output_portal.position - space_thing1.position).get_length() > space_thing1.radius:
                     space_thing1.output_portal = None
+        b = 1
 
     def move_particles(self):
         for particel in self.particles:
