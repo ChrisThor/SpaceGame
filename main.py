@@ -217,7 +217,10 @@ def main():
                             speed_factor -= 1
                     elif event.key == pygame.K_c:
                         if template_space_object is not None:
-                            template_space_object.static = True
+                            if template_space_object.static:
+                                template_space_object.static = False
+                            else:
+                                template_space_object.static = True
                     elif event.key == pygame.K_x:
                         if change_temp_mass:
                             change_temp_mass = False
@@ -240,9 +243,6 @@ def main():
                         turn_left = False
                     elif event.key == pygame.K_RIGHT:
                         turn_right = False
-                    elif event.key == pygame.K_c:
-                        if template_space_object is not None:
-                            template_space_object.static = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     keys = pygame.mouse.get_pressed()
                     if keys[0] == 1:
