@@ -299,9 +299,9 @@ class SpaceGame:
                     if p.lifetime <= 0:
                         self.space.particles.remove(p)
                 self.space.apply_forces(self.hope_ship, self.debug_mode, self.particle_tick)
-        if smallest_distance is not None and smallest_distance < nearest_space_thing.radius + 30:
+        if not self.hope_ship.crashed and smallest_distance is not None and smallest_distance < nearest_space_thing.radius + 30 and nearest_space_thing.radius > 5:
             show_text("fonts/Roboto_Mono/RobotoMono-LightItalic.ttf", 50, (255, 0, 255), "Land (l)",
-                      (50, 0), self.background)
+                      (50, self.resolution[1] - 100), self.background)
         self.draw_frame()
         if self.takescreenshot:
             t_s(self.background)
