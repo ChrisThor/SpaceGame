@@ -182,7 +182,7 @@ class SpaceGame:
                         self.paused = True
                 elif event.key == pygame.K_l:
                     if not self.hope_ship.crashed and smallest_distance is not None:
-                        if smallest_distance < nearest_space_thing.radius + 30:
+                        if smallest_distance < nearest_space_thing.radius + 30 and nearest_space_thing.radius > 5:
                             if nearest_space_thing.surface is None:
                                 nearest_space_thing.generate_world(self.background, self.screen, self.resolution)
                                 self.template_planet_surface = nearest_space_thing.surface
