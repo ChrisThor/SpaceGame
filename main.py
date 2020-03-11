@@ -468,7 +468,7 @@ def draw_particles(background, center_x, center_y, hope_ship, screen_width, spac
 
 
 def manage_framerate(delta_frame, fps, framerate_stability_value, space):
-    if delta_frame < .5:
+    if delta_frame < .25:
         """
         This if-statement prevents giant steps and tickrates. When the window is moved, processing stops until it is
         released. Half a second should be a good balance, as I assume that there will never be a normal frame that takes
