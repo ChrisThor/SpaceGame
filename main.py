@@ -92,12 +92,6 @@ def main():
     space.space_objects.append(space_object.SpaceObject("Großer Brocken", 1e14, 20, 0, 0, 0, 0, (50, 50, 255), 8,
                                                         static=True))
 
-    # for i in range(150):
-    #     space.space_objects.append(space_object.SpaceObject("Ding", 1e14, 15, 0, 0, random.randint(-3500, 3500),
-    #                                                         random.randint(-1600, 1600),
-    #                                                         (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 5,
-    #                                                         show_health_bar=False))
-
     template_space_object = None
     tooltip = tooltips.Tooltips()
     running = True
