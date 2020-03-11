@@ -82,7 +82,6 @@ def main():
     playtime = 0.0
     speed_factor = 1
     zoom_factor = 2
-    world_zoom_factor = 3
     center_x = int(screen_width / 2)
     center_y = int(screen_height / 2)
 
@@ -356,16 +355,6 @@ def draw_space_objects(background, center_x, center_y, draw_vectors, hope_ship, 
                                           center_y + space_thing.bottom.y_value * zoom_factor),
                                          (center_x + space_thing.bottom_right.x_value * zoom_factor,
                                           center_y + space_thing.bottom_right.y_value * zoom_factor)))
-                elif space_thing.name == "Portal":
-                    pygame.draw.polygon(background, (255, 255, 255),
-                                        ((pos_x_on_screen + space_thing.corner0.x_value * zoom_factor,
-                                          pos_y_on_screen + space_thing.corner0.y_value * zoom_factor),
-                                         (pos_x_on_screen + space_thing.corner1.x_value * zoom_factor,
-                                          pos_y_on_screen + space_thing.corner1.y_value * zoom_factor),
-                                         (pos_x_on_screen + space_thing.corner2.x_value * zoom_factor,
-                                          pos_y_on_screen + space_thing.corner2.y_value * zoom_factor),
-                                         (pos_x_on_screen + space_thing.corner3.x_value * zoom_factor,
-                                          pos_y_on_screen + space_thing.corner3.y_value * zoom_factor)))
             if draw_vectors:
                 background = space_thing.draw_speed_vector(background, pos_x_on_screen, pos_y_on_screen,
                                                            zoom_factor)
@@ -414,7 +403,7 @@ def draw_particles(background, center_x, center_y, hope_ship, screen_width, spac
 
 
 def manage_framerate(delta_frame, fps, framerate_stability_value, space):
-    if delta_frame < .5:
+    if delta_frame < .25:
         """
         This if-statement prevents giant steps and tickrates. When the window is moved, processing stops until it is
         released. Half a second should be a good balance, as I assume that there will never be a normal frame that takes
