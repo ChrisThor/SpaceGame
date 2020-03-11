@@ -6,6 +6,7 @@ import space_object
 import space_ship
 import vector
 import star
+import tooltips
 import world
 from screenshot import take_screenshot as t_s
 import random
@@ -105,6 +106,7 @@ def main():
 
     # template_planet_surface = world.World(10, 32, background, screen)
     template_planet_surface = None
+    tooltip = tooltips.Tooltips()
 
     template_space_object = None
 
@@ -119,6 +121,7 @@ def main():
     paused = False
     change_temp_mass = False
     takescreenshot = False
+    show_tooltips = False
     particle_tick = 0
     framerate_stability_value = 0
     loop_type = 0
@@ -151,6 +154,11 @@ def main():
                         turn_right = True
                     elif event.key == pygame.K_g:
                         break_to_zero = True
+                    elif event.key == pygame.K_h:
+                        if show_tooltips:
+                            show_tooltips = False
+                        else:
+                            show_tooltips = True
                     elif event.key == pygame.K_F1:
                         if zoom_factor > 0.25:
                             zoom_factor /= 2
@@ -310,7 +318,8 @@ def main():
                 show_text("fonts/Roboto_Mono/RobotoMono-LightItalic.ttf", 50, (255, 0, 255), "Land (l)",
                           (50, 0), background)
             draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
-                       screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor)
+                       screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor,
+                       show_tooltips, tooltip)
             if takescreenshot:
                 t_s(background)
                 takescreenshot = False
@@ -357,11 +366,13 @@ def display_text(msg, zoom_factor):
 
 
 def draw_frame(background, big_stars, center_x, center_y, draw_vectors, hope_ship, screen,
-               screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor):
+               screen_height, screen_width, small_stars, space, static_stars, template_space_object, zoom_factor,
+               show_tooltips, tooltip):
     draw_stars(static_stars, small_stars, big_stars, background, hope_ship, center_x, center_y)
     draw_particles(background, center_x, center_y, hope_ship, screen_width, space, zoom_factor)
     draw_space_objects(background, center_x, center_y, draw_vectors, hope_ship,
                        screen_height, screen_width, space, zoom_factor, template_space_object)
+    tooltip.show_tooltips(background, show_tooltips)
     screen.blit(background, (0, 0))
     if template_space_object is not None:
         test = display_text(template_space_object.mass, zoom_factor)
