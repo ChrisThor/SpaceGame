@@ -50,9 +50,9 @@ class SpaceObject:
     def reset_acceleration(self):
         self.acceleration *= 0
 
-    def generate_world(self, background, screen):
+    def generate_world(self, background, screen, resolution):
         width = int(self.radius * 2 / 2)
-        self.surface = world.World(width, 32, background, screen)
+        self.surface = world.World(width, 32, background, screen, resolution)
 
     def print_stats(self):
         print(f"{self.name} ({self.mass} kg) \n"

@@ -13,7 +13,7 @@ from block import Block
 
 
 class World:
-    def __init__(self, width, height, background, screen):
+    def __init__(self, width, height, background, screen, resolution):
         self.loading_percentage = -1
         self.chunks = []
         self.textures = {}
@@ -40,7 +40,7 @@ class World:
         self.player.mining_device.tool = 0
         self.mouse_position = None
         self.player_direction = 0
-        self.transparent_surface = pygame.Surface((1800, 1000), pygame.SRCALPHA, 32)
+        self.transparent_surface = pygame.Surface(resolution, pygame.SRCALPHA, 32)
         self.gravity = 1
 
     def apply_block_variation(self, background, screen):

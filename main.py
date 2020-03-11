@@ -1,3 +1,4 @@
+import sys
 import pygame
 import planet_creation
 import time
@@ -107,13 +108,16 @@ class SpaceGame:
         pygame.quit()
 
     def get_smallest_distance_to_object(self):
-        nearest_space_thing = self.space.space_objects[1]
-        smallest_distance = 100
-        for space_thing in self.space.space_objects:
-            new_distance = (self.hope_ship.position - space_thing.position).get_length()
-            if new_distance < smallest_distance and new_distance != 0:
-                smallest_distance = new_distance
-                nearest_space_thing = space_thing
+        try:
+            nearest_space_thing = self.space.space_objects[1]
+            smallest_distance = 100
+            for space_thing in self.space.space_objects:
+                new_distance = (self.hope_ship.position - space_thing.position).get_length()
+                if new_distance < smallest_distance and new_distance != 0:
+                    smallest_distance = new_distance
+                    nearest_space_thing = space_thing
+        except IndexError:
+            return None, None
         return nearest_space_thing, smallest_distance
 
     def do_space_loop(self, milliseconds):
@@ -177,10 +181,10 @@ class SpaceGame:
                     else:
                         self.paused = True
                 elif event.key == pygame.K_l:
-                    if not self.hope_ship.crashed:
+                    if not self.hope_ship.crashed and smallest_distance is not None:
                         if smallest_distance < nearest_space_thing.radius + 30:
                             if nearest_space_thing.surface is None:
-                                nearest_space_thing.generate_world(self.background, self.screen)
+                                nearest_space_thing.generate_world(self.background, self.screen, self.resolution)
                                 self.template_planet_surface = nearest_space_thing.surface
                             else:
                                 self.template_planet_surface = nearest_space_thing.surface
@@ -295,7 +299,7 @@ class SpaceGame:
                     if p.lifetime <= 0:
                         self.space.particles.remove(p)
                 self.space.apply_forces(self.hope_ship, self.debug_mode, self.particle_tick)
-        if smallest_distance < nearest_space_thing.radius + 30:
+        if smallest_distance is not None and smallest_distance < nearest_space_thing.radius + 30:
             show_text("fonts/Roboto_Mono/RobotoMono-LightItalic.ttf", 50, (255, 0, 255), "Land (l)",
                       (50, 0), self.background)
         self.draw_frame()
@@ -467,7 +471,15 @@ def main():
 
     # template_planet_surface = world.World(10, 32, background, screen)
 
-    game = SpaceGame()
+    if len(sys.argv) > 0:   # if you'd like to have fullscreen, add it like this: res_x res_y True
+        if len(sys.argv) == 3:
+            game = SpaceGame(fullscreen=bool(sys.argv[1]))
+        elif len(sys.argv) == 4:
+            game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])), bool(sys.argv[3]))
+        else:
+            exit("You should use three parameters")
+    else:
+        game = SpaceGame()
     game.do_main_loop()
 
 
