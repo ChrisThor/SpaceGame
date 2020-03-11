@@ -1,9 +1,0 @@
-textures:
-  - textures/objects/candle_0.png
-  - textures/objects/candle_1.png
-  - textures/objects/candle_2.png
-name: Candle
-description: During cold winter nights, this may be the only source of light that brightens a dark room.
-drop: True
-solid_top: False
-animation_tick: 0.16666666

@@ -1,4 +1,3 @@
-import world
 import vector
 import pygame
 import health_bar
@@ -22,7 +21,6 @@ class SpaceObject:
         self.static = static        # If static, this space object will not be influenced by gravitational forces
         self.output_portal = None
         self.show_health_bar = show_health_bar
-        self.surface = None
 
     def __add__(self, other):
         if other.name == "Bullet":
@@ -49,10 +47,6 @@ class SpaceObject:
 
     def reset_acceleration(self):
         self.acceleration *= 0
-
-    def generate_world(self, background, screen):
-        width = int(self.radius * 2 / 2)
-        self.surface = world.World(width, 32, background, screen)
 
     def print_stats(self):
         print(f"{self.name} ({self.mass} kg) \n"

@@ -1,7 +1,0 @@
-textures:
-  - textures/objects/wooden_table.png
-name: A wooden table
-description: There is nothing special about this simple wooden table.
-drop: True
-solid_top: True
-animation_tick: 0.16666666
