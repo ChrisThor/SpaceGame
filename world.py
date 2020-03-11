@@ -282,8 +282,7 @@ class World:
         if not self.player.check_top_blocks(tickrate, gravity):
             pass
         if not self.player.check_blocks_underneath(tickrate, gravity):
-            if self.player.speed.y_value < gravity:
-                self.player.speed.y_value += gravity * tickrate
+            self.player.speed.y_value += gravity * tickrate
         elif self.player.speed.y_value >= 0:
             self.player.speed.y_value = 0
             self.player.jumps = self.player.max_jumps
