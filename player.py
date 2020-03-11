@@ -16,7 +16,7 @@ class Player:
         self.width = 1.75
         self.jumps = 1
         self.max_jumps = 1
-        self.health_bar = health_bar.HealthBar(100, 25)
+        self.health_bar = health_bar.HealthBar(100, 25, (200, 0, 0))
         self.bottom_blocks = []
         self.top_blocks = []
         self.left_side_blocks = []
