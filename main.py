@@ -192,14 +192,14 @@ class SpaceGame:
                             self.loop_type = 1
                 elif event.key == pygame.K_e:
                     if not self.paused:
-                        self.speed_factor += 1
+                        self.speed_factor *= 2
                     else:
                         self.paused = False
                 elif event.key == pygame.K_q:
-                    if self.speed_factor - 1 == 0:
+                    if self.speed_factor / 2 < 1:
                         self.paused = True
                     elif not self.paused:
-                        self.speed_factor -= 1
+                        self.speed_factor = int(self.speed_factor / 2)
                 elif event.key == pygame.K_c:
                     if self.template_space_object is not None:
                         if self.template_space_object.static:
