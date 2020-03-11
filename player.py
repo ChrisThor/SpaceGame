@@ -2,7 +2,7 @@ import math
 import mining_device
 import pygame
 import vector
-
+import health_bar
 
 class Player:
     def __init__(self, position_x=8):
@@ -16,6 +16,7 @@ class Player:
         self.width = 1.75
         self.jumps = 1
         self.max_jumps = 1
+        self.health_bar = health_bar.HealthBar(100, 25)
         self.bottom_blocks = []
         self.top_blocks = []
         self.left_side_blocks = []
@@ -69,6 +70,7 @@ class Player:
             texture = self.current_texture
         background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))), (center_x - x_offset * zoom_factor,
                           center_y - 2.5 * zoom_factor))
+        self.health_bar.draw_bar(background, 4, int(self.health_bar.width * 2) + 10, 10, 0)
     
     def manage_animations(self, tickrate):
         if self.speed.y_value > 0:
