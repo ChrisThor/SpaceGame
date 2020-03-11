@@ -162,7 +162,7 @@ class SpaceGame:
                 elif event.key == pygame.K_F12:
                     self.takescreenshot = True
                 elif event.key == pygame.K_SPACE:
-                    if not self.paused:
+                    if not self.paused and not self.hope_ship.crashed:
                         self.hope_ship.launch_bullet(self.space, self.fps)
                 elif event.key == pygame.K_w:
                     if not self.paused:
