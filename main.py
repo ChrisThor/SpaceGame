@@ -14,11 +14,15 @@ import random
 import portal
 import math
 from save_space_objects import save_space_objects, load_space_objects
+import manage_framerate
+import global_variables
 
 
 class SpaceGame:
     def __init__(self, resolution=(1800, 1000), fullscreen=False):
         self.resolution = resolution
+        global_variables.resolution = resolution
+
         self.static_stars = star.create_static_stars(resolution[1], resolution[0])
         self.small_stars = star.create_small_stars(resolution[1], resolution[0])
         self.big_stars = star.create_big_stars(resolution[1], resolution[0])
@@ -28,6 +32,8 @@ class SpaceGame:
         else:
             self.screen = pygame.display.set_mode(resolution)
         pygame.display.set_caption("STARBOUNCE")
+
+        global_variables.screen = self.screen
 
         self.background = pygame.Surface(self.screen.get_size())
         self.background.fill((22, 22, 22))
@@ -80,7 +86,7 @@ class SpaceGame:
             self.delta_frame = self.frame_end - self.frame_start
 
             self.frame_start = time.time()
-            self.manage_framerate()
+            self.fps = manage_framerate.manage_framerate(self.delta_frame, self.fps, self.space)
 
             if self.loop_type == 0:
                 self.do_space_loop(milliseconds)
@@ -445,16 +451,6 @@ class SpaceGame:
                                (pos_x_on_screen, pos_y_on_screen),
                                int(self.template_space_object.radius * self.zoom_factor),
                                int(2 * self.zoom_factor))
-
-    def manage_framerate(self):
-        if self.delta_frame < .25:
-            """
-            This if-statement prevents giant steps and tickrates. When the window is moved, processing stops until it is
-            released. 0.25 seconds should be a good balance, as I assume that there will never be a normal frame that takes
-            longer to calculate than that.
-            """
-            self.space.tickrate = self.delta_frame
-            self.fps = int(1 / self.delta_frame)
 
 
 def main():

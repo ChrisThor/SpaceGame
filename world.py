@@ -22,6 +22,7 @@ class World:
         self.general_block_size = 8
         self.general_chunk_size = 16
         self.width = width
+        self.height = height
         self.generate_chunks(height, width, background, screen)
         self.all_blocks = self.get_all_blocks()
         self.apply_block_variation(background, screen)
@@ -243,8 +244,8 @@ class World:
             self.player.current_texture = self.player.textures["standing"]
             self.player.animation_state = 0
 
-        self.apply_gravity(tickrate)
-        self.apply_speed(tickrate)
+        self.apply_gravity(tickrate, background)
+        self.apply_speed(tickrate, background)
 
         objects_on_chunks = []
         for chunq in self.active_chunks:
@@ -268,6 +269,7 @@ class World:
                                                          center_y,
                                                          self.textures)
 
+        self.player.health_bar.draw_bar(background, 4, int(self.player.health_bar.width * 2) + 10, 10, 0)
         if self.chat_active:
             background.blit(self.chat.process(tickrate), (0, 0))
 
@@ -277,7 +279,7 @@ class World:
 
         return running, zoom_factor, loop_type
 
-    def apply_gravity(self, tickrate):
+    def apply_gravity(self, tickrate, background):
         gravity = 50
         if not self.player.check_top_blocks(tickrate, gravity):
             pass
@@ -291,7 +293,7 @@ class World:
                 falling_damage = (self.player.speed.y_value - 50) * 3
                 print(falling_damage)
 
-                self.player.take_damage(falling_damage, "height")
+                self.player.take_damage(falling_damage, "height", background)
             self.player.speed.y_value = 0
 
     def get_active_chunks(self):
@@ -326,8 +328,11 @@ class World:
                             chunq.block_offset = self.width * self.general_chunk_size
                             self.active_chunks.append(chunq)
 
-    def apply_speed(self, tickrate):
-        self.player.position += self.player.speed * tickrate
+    def apply_speed(self, tickrate, background):
+        if self.player.position.y_value > self.height * 16 / 2:
+            self.player.take_damage(self.player.health_bar.hp + 1, "The depths", background)
+        else:
+            self.player.position += self.player.speed * tickrate
 
     def get_chunks_above_position(self, chunk_pos_x, chunk_pos_y):
         top_chunks = []

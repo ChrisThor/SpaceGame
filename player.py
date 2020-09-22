@@ -3,6 +3,7 @@ import mining_device
 import pygame
 import vector
 import health_bar
+import death_screen
 
 
 class Player:
@@ -71,7 +72,7 @@ class Player:
             texture = self.current_texture
         background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))), (center_x - x_offset * zoom_factor,
                           center_y - 2.5 * zoom_factor))
-        self.health_bar.draw_bar(background, 4, int(self.health_bar.width * 2) + 10, 10, 0)
+        # self.health_bar.draw_bar(background, 4, int(self.health_bar.width * 2) + 10, 10, 0)
     
     def manage_animations(self, tickrate):
         if self.speed.y_value > 0:
@@ -281,11 +282,10 @@ class Player:
         else:
             return False
 
-    def take_damage(self, damage_points, source):
+    def take_damage(self, damage_points, source, background):
         self.health_bar.reduce_hp(damage_points)
         if self.health_bar.hp <= 0:
-            death_message = ""
-            if source == "gravity":
-                death_message = "You fell too far"
-
-            print(death_message)
+            death_screen.show_death_screen(background, source)
+            self.health_bar.hp = self.health_bar.max_hp
+            self.position = self.start_position
+            self.speed = vector.Vector()
