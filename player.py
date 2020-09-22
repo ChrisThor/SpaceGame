@@ -4,6 +4,7 @@ import pygame
 import vector
 import health_bar
 
+
 class Player:
     def __init__(self, position_x=8):
         self.position = vector.Vector(position_x, 0)
@@ -16,7 +17,7 @@ class Player:
         self.width = 1.75
         self.jumps = 1
         self.max_jumps = 1
-        self.health_bar = health_bar.HealthBar(100, 25, (200, 0, 0))
+        self.health_bar = health_bar.HealthBar(100, 25, (200, 0, 0), True)
         self.bottom_blocks = []
         self.top_blocks = []
         self.left_side_blocks = []
@@ -279,3 +280,12 @@ class Player:
                 return False
         else:
             return False
+
+    def take_damage(self, damage_points, source):
+        self.health_bar.reduce_hp(damage_points)
+        if self.health_bar.hp <= 0:
+            death_message = ""
+            if source == "gravity":
+                death_message = "You fell too far"
+
+            print(death_message)

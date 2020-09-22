@@ -40,7 +40,7 @@ class SpaceObject:
         return self
 
     def get_damage(self, bullet):
-        self.health_bar.hp -= bullet.damage
+        self.health_bar.reduce_hp(bullet.damage)
         if self.health_bar.hp <= 0:
             self.mass = 0
             self.speed = vector.Vector()

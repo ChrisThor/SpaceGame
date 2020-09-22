@@ -283,10 +283,16 @@ class World:
             pass
         if not self.player.check_blocks_underneath(tickrate, gravity):
             self.player.speed.y_value += gravity * tickrate
-        elif self.player.speed.y_value >= 0:
-            self.player.speed.y_value = 0
+        elif self.player.speed.y_value > 0:
             self.player.jumps = self.player.max_jumps
             self.player.position.y_value = round(self.player.position.y_value)
+
+            if self.player.speed.y_value > 50:
+                falling_damage = (self.player.speed.y_value - 50) * 3
+                print(falling_damage)
+
+                self.player.take_damage(falling_damage, "height")
+            self.player.speed.y_value = 0
 
     def get_active_chunks(self):
         if self.player.position.x_value < -self.width / 2 * self.general_chunk_size:

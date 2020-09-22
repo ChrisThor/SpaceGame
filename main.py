@@ -473,9 +473,10 @@ def main():
 
     if len(sys.argv) > 0:   # if you'd like to have fullscreen, add it like this: res_x res_y True
         if len(sys.argv) == 3:
-            game = SpaceGame(fullscreen=bool(sys.argv[1]))
+            game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])))
         elif len(sys.argv) == 4:
-            game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])), bool(sys.argv[3]))
+            print(sys.argv)
+            game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])), fullscreen=bool(sys.argv[3]))
         else:
             exit("You should use three parameters")
     else:
