@@ -569,6 +569,10 @@ class World:
                                             self.all_blocks[f"{object_to_place.position.x_value}_{object_to_place.position.y_value}"][0],
                                             x,
                                             -y - 1)
+                                        if object_template.get("light", False):
+                                            block[0].light = True
+                                            object_to_place.changed_blocks.append(block[0])
+                                            self.update_light_around_block([block])
                                         object_to_place.recieving_blocks.append(block[0])
                                         block[0].related_object = object_to_place
 
@@ -618,12 +622,16 @@ class World:
                                     if self.player.mining_device.mode == 1 and not chunq.blocks[block_x % self.general_chunk_size][
                                             block_y % self.general_chunk_size][0].solid or self.player.mining_device.mode == 0 and \
                                             not chunq.blocks[block_x % self.general_chunk_size][
-                                                block_y % self.general_chunk_size][1].solid:
+                                                block_y % self.general_chunk_size][1].solid or \
+                                            chunq.blocks[block_x % self.general_chunk_size][
+                                            block_y % self.general_chunk_size][0].light:
                                         if not chunq.blocks[block_x % self.general_chunk_size][
                                                 block_y % self.general_chunk_size][self.player.mining_device.mode - 1].solid:
                                             chunq.solid_blocks -= 1
                                             if chunq.solid_blocks == 0:
                                                 chunq.state = 2
+
+                                        chunq.blocks[block_x % self.general_chunk_size][block_y % self.general_chunk_size][0].light = False
                                         update_light_for_blocks.append(chunq.blocks[block_x % self.general_chunk_size]
                                                                        [block_y % self.general_chunk_size])
                             elif self.player.mining_device.tool == 1 and self.player.block is not None:
@@ -675,7 +683,7 @@ class World:
                     except KeyError:
                         continue
                     if blocks is not None:
-                        if not blocks[0].solid and not blocks[1].solid:
+                        if (not blocks[0].solid and not blocks[1].solid) or blocks[0].light or (blocks[1].light and not blocks[0].solid):
                             try:
                                 brightness = \
                                     1 - ((block[0].position - blocks[0].position).get_length() - 1) / self.max_light_distance

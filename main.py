@@ -197,6 +197,7 @@ class SpaceGame:
                             else:
                                 self.template_planet_surface = nearest_space_thing.surface
                                 self.template_planet_surface.player.position = self.template_planet_surface.player.start_position
+                                self.template_planet_surface.player.speed *= 0
                             self.loop_type = 1
                 elif event.key == pygame.K_e:
                     if not self.paused:

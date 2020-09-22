@@ -42,6 +42,7 @@ class Block:
         self.shade = pygame.Surface((int(self.size), int(self.size)))
         self.old_zoom_factor = 0
         self.containing = containing
+        self.light = False
         self.related_object = None
 
     def dismantle(self, mining_device, tickrate):
@@ -61,6 +62,7 @@ class Block:
                 else:
                     self.related_object.disabled = True
                     self.related_object.delete_blocks()
+                    return True
                     # self.related_object = None
         else:
             pass

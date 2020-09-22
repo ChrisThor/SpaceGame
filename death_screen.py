@@ -22,7 +22,12 @@ def show_death_screen(background, source):
         global_variables.screen.blit(background, (0, 0))
         pygame.display.flip()
 
-        time.sleep(0.2)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit(0)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    death_screen_time = 0
 
         frame_end = time.time()
         delta_frame = frame_end - frame_start
