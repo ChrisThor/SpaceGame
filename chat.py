@@ -95,6 +95,13 @@ class Chat:
         elif command[0] == "kill":
             if len(command) == 1:
                 player.take_damage(player.health_bar.hp + 1, "")
+        elif command[0] == "settoolsize":
+            if len(command) == 2:
+                try:
+                    player.mining_device.size = int(command[1])
+                    player.mining_device.original_size = player.mining_device.size
+                except ValueError:
+                    pass
         self.text = ""
 
     def edit_position(self, command, position):
