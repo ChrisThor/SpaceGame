@@ -96,12 +96,21 @@ class Chat:
             if len(command) == 1:
                 player.take_damage(player.health_bar.hp + 1, "")
         elif command[0] == "settoolsize":
-            if len(command) == 2:
-                try:
-                    player.mining_device.size = int(command[1])
-                    player.mining_device.original_size = player.mining_device.size
-                except ValueError:
-                    pass
+            if len(command) == 3:
+                if command[1] == "mining":
+                    try:
+                        if int(command[2]) > 0:
+                            player.mining_device.mining_size = int(command[2])
+                            player.mining_device.original_mining_size = player.mining_device.mining_size
+                    except ValueError:
+                        pass
+                if command[1] == "building":
+                    try:
+                        if int(command[2]) > 0:
+                            player.mining_device.building_size = int(command[2])
+                            player.mining_device.original_building_size = player.mining_device.building_size
+                    except ValueError:
+                        pass
         self.text = ""
 
     def edit_position(self, command, position):

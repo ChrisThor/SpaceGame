@@ -194,7 +194,8 @@ class World:
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player,
                                                               self.textures)
                     elif event.key == pygame.K_LCTRL:
-                        self.player.mining_device.size = 1
+                        self.player.mining_device.mining_size = 1
+                        self.player.mining_device.building_size = 1
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
                     elif event.key == pygame.K_s:
                         self.down_fall = 1
@@ -204,7 +205,8 @@ class World:
                     elif event.key == pygame.K_d:
                         self.move_right = False
                     elif event.key == pygame.K_LCTRL:
-                        self.player.mining_device.size = self.player.mining_device.original_size
+                        self.player.mining_device.mining_size = self.player.mining_device.original_mining_size
+                        self.player.mining_device.building_size = self.player.mining_device.original_building_size
                         self.player.mining_device.set_surface(int(zoom_factor * self.general_block_size), self.player, self.textures)
                     elif event.key == pygame.K_s:
                         self.down_fall = 0
@@ -575,12 +577,22 @@ class World:
             # area_x_2 = block_pos_x + trans_flag.size[0] / self.general_block_size
             # area_y_2 = block_pos_y - trans_flag.size[1] / self.general_block_size
 
-        area_x_1 = block_pos_x - (
-                self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
-        area_x_2 = block_pos_x + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
-        area_y_2 = block_pos_y + (self.player.mining_device.size - math.ceil(self.player.mining_device.size / 2))
-        area_y_1 = block_pos_y - (
-                self.player.mining_device.size - math.floor(self.player.mining_device.size / 2 + 1))
+        if self.player.mining_device.tool == 0:
+            area_x_1 = block_pos_x - (
+                    self.player.mining_device.mining_size - math.floor(self.player.mining_device.mining_size / 2 + 1))
+            area_x_2 = block_pos_x + (self.player.mining_device.mining_size - math.ceil(self.player.mining_device.mining_size / 2))
+            area_y_2 = block_pos_y + (self.player.mining_device.mining_size - math.ceil(self.player.mining_device.mining_size / 2))
+            area_y_1 = block_pos_y - (
+                    self.player.mining_device.mining_size - math.floor(self.player.mining_device.mining_size / 2 + 1))
+        else:
+            area_x_1 = block_pos_x - (
+                    self.player.mining_device.building_size - math.floor(self.player.mining_device.building_size / 2 + 1))
+            area_x_2 = block_pos_x + (
+                        self.player.mining_device.building_size - math.ceil(self.player.mining_device.building_size / 2))
+            area_y_2 = block_pos_y + (
+                        self.player.mining_device.building_size - math.ceil(self.player.mining_device.building_size / 2))
+            area_y_1 = block_pos_y - (
+                    self.player.mining_device.building_size - math.floor(self.player.mining_device.building_size / 2 + 1))
 
         self.player.mining_device.update_position(vector.Vector(area_x_1, area_y_1))
 
