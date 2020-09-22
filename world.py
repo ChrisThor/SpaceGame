@@ -293,7 +293,7 @@ class World:
                 falling_damage = (self.player.speed.y_value - 50) * 3
                 print(falling_damage)
 
-                self.player.take_damage(falling_damage, "height", background)
+                self.player.take_damage(falling_damage, "height")
             self.player.speed.y_value = 0
 
     def get_active_chunks(self):
@@ -330,7 +330,7 @@ class World:
 
     def apply_speed(self, tickrate, background):
         if self.player.position.y_value > self.height * 16 / 2:
-            self.player.take_damage(self.player.health_bar.hp + 1, "The depths", background)
+            self.player.take_damage(self.player.health_bar.hp + 1, "The depths")
         else:
             self.player.position += self.player.speed * tickrate
 

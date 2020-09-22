@@ -92,6 +92,9 @@ class Chat:
                 player.start_position = player.position.copy()
             elif len(command) == 3:
                 self.edit_position(command, player.start_position)
+        elif command[0] == "kill":
+            if len(command) == 1:
+                player.take_damage(player.health_bar.hp + 1, "")
         self.text = ""
 
     def edit_position(self, command, position):

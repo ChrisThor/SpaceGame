@@ -39,6 +39,8 @@ class SpaceGame:
         self.background.fill((22, 22, 22))
         self.background = self.background.convert()
 
+        global_variables.background = self.background
+
         self.screen.blit(self.background, (0, 0))
 
         self.clock = pygame.time.Clock()

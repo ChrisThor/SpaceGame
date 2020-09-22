@@ -4,6 +4,7 @@ import pygame
 import vector
 import health_bar
 import death_screen
+import global_variables
 
 
 class Player:
@@ -282,10 +283,10 @@ class Player:
         else:
             return False
 
-    def take_damage(self, damage_points, source, background):
+    def take_damage(self, damage_points, source):
         self.health_bar.reduce_hp(damage_points)
         if self.health_bar.hp <= 0:
-            death_screen.show_death_screen(background, source)
+            death_screen.show_death_screen(global_variables.background, source)
             self.health_bar.hp = self.health_bar.max_hp
             self.position = self.start_position
             self.speed = vector.Vector()
