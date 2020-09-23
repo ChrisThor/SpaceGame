@@ -354,7 +354,7 @@ class SpaceGame:
                 pos_y_on_screen = (self.center_y + (small_star.position.y_value - self.hope_ship.position.y_value / 3))
             pygame.draw.rect(self.background,
                              small_star.colour,
-                             (pos_x_on_screen, pos_y_on_screen, small_star.size, small_star.size))
+                             (int(pos_x_on_screen), int(pos_y_on_screen), small_star.size, small_star.size))
         for big_star in self.big_stars:
             pos_x_on_screen = (self.center_x + (big_star.position.x_value - self.hope_ship.position.x_value / 1.8))
             pos_y_on_screen = (self.center_y + (big_star.position.y_value - self.hope_ship.position.y_value / 1.8))
@@ -372,7 +372,7 @@ class SpaceGame:
                 pos_y_on_screen = (self.center_y + (big_star.position.y_value - self.hope_ship.position.y_value / 1.8))
             pygame.draw.rect(self.background,
                              big_star.colour,
-                             (pos_x_on_screen, pos_y_on_screen, big_star.size, big_star.size))
+                             (int(pos_x_on_screen), int(pos_y_on_screen), big_star.size, big_star.size))
 
     def draw_particles(self):
         for p in self.space.particles:
@@ -393,8 +393,8 @@ class SpaceGame:
                     pygame.draw.rect(self.background, p.colour,
                                      (pos_x_on_screen,
                                       pos_y_on_screen,
-                                      p.size * self.zoom_factor,
-                                      p.size * self.zoom_factor))
+                                      int(p.size * self.zoom_factor),
+                                      int(p.size * self.zoom_factor)))
 
     def draw_space_objects(self):
         for space_thing in self.space.space_objects:
@@ -414,14 +414,14 @@ class SpaceGame:
                 else:
                     if space_thing.name == "Hope":
                         pygame.draw.polygon(self.background, (255, 255, 255),
-                                            ((self.center_x + space_thing.tip.x_value * self.zoom_factor,
-                                              self.center_y + space_thing.tip.y_value * self.zoom_factor),
-                                             (self.center_x + space_thing.bottom_left.x_value * self.zoom_factor,
-                                              self.center_y + space_thing.bottom_left.y_value * self.zoom_factor),
-                                             (self.center_x + space_thing.bottom.x_value * self.zoom_factor,
-                                              self.center_y + space_thing.bottom.y_value * self.zoom_factor),
-                                             (self.center_x + space_thing.bottom_right.x_value * self.zoom_factor,
-                                              self.center_y + space_thing.bottom_right.y_value * self.zoom_factor)))
+                                            ((int(self.center_x + space_thing.tip.x_value * self.zoom_factor),
+                                              int(self.center_y + space_thing.tip.y_value * self.zoom_factor)),
+                                             (int(self.center_x + space_thing.bottom_left.x_value * self.zoom_factor),
+                                              int(self.center_y + space_thing.bottom_left.y_value * self.zoom_factor)),
+                                             (int(self.center_x + space_thing.bottom.x_value * self.zoom_factor),
+                                              int(self.center_y + space_thing.bottom.y_value * self.zoom_factor)),
+                                             (int(self.center_x + space_thing.bottom_right.x_value * self.zoom_factor),
+                                              int(self.center_y + space_thing.bottom_right.y_value * self.zoom_factor))))
                     elif space_thing.name == "Portal":
                         pygame.draw.polygon(self.background, (255, 255, 255),
                                             ((pos_x_on_screen + space_thing.corner0.x_value * self.zoom_factor,
@@ -471,10 +471,13 @@ def main():
     # template_planet_surface = world.World(10, 32, background, screen)
 
     if len(sys.argv) > 0:   # if you'd like to have fullscreen, add it like this: res_x res_y True
-        if len(sys.argv) == 3:
+        if len(sys.argv) == 1:
+            game = SpaceGame()
+        elif len(sys.argv) == 3:
             game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])))
+        elif len(sys.argv) == 2:
+            game = SpaceGame(fullscreen=bool(sys.argv[1]))
         elif len(sys.argv) == 4:
-            print(sys.argv)
             game = SpaceGame((int(sys.argv[1]), int(sys.argv[2])), fullscreen=bool(sys.argv[3]))
         else:
             exit("You should use three parameters")

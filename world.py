@@ -10,6 +10,7 @@ from screenshot import take_screenshot
 import chat
 import yaml
 from block import Block
+import global_variables
 
 
 class World:
@@ -246,22 +247,22 @@ class World:
             self.player.current_texture = self.player.textures["standing"]
             self.player.animation_state = 0
 
-        self.apply_gravity(tickrate, background)
-        self.apply_speed(tickrate, background)
+        self.apply_gravity(tickrate)
+        self.apply_speed(tickrate)
 
         objects_on_chunks = []
         for chunq in self.active_chunks:
-            objects_on_chunks += chunq.draw_chunk([background, foreground], center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
+            objects_on_chunks += chunq.draw_chunk([global_variables.background, foreground], center_x, center_y, zoom_factor, self.player, self.black_chunk_colour)
         for object_on_chunk in objects_on_chunks:
             if not object_on_chunk.disabled:
-                object_on_chunk.draw_object(background, self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
+                object_on_chunk.draw_object(self.player, zoom_factor, center_x, center_y, self.general_block_size, tickrate)
             else:
                 # objects_on_chunks.remove(object_on_chunk)
                 pass
 
-        self.player.draw_player(background, center_x, center_y, zoom_factor, self.general_block_size)
+        self.player.draw_player(center_x, center_y, zoom_factor, self.general_block_size)
 
-        background.blit(foreground, (0, 0))
+        global_variables.background.blit(foreground, (0, 0))
 
         if self.player.mining_device.tool != 2:
             self.player.mining_device.draw_affected_area(background,
@@ -281,7 +282,7 @@ class World:
 
         return running, zoom_factor, loop_type
 
-    def apply_gravity(self, tickrate, background):
+    def apply_gravity(self, tickrate):
         gravity = 50
         if not self.player.check_top_blocks(tickrate, gravity):
             pass
@@ -330,7 +331,7 @@ class World:
                             chunq.block_offset = self.width * self.general_chunk_size
                             self.active_chunks.append(chunq)
 
-    def apply_speed(self, tickrate, background):
+    def apply_speed(self, tickrate):
         if self.player.position.y_value > self.height * 16 / 2:
             self.player.take_damage(self.player.health_bar.hp + 1, "The depths")
         else:

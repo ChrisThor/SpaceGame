@@ -55,10 +55,10 @@ class Player:
         self.textures["falling2"] = pygame.image.load("textures/character/genvieve_falling_2.png")
         self.textures["falling3"] = pygame.image.load("textures/character/genvieve_falling_3.png")
 
-    def draw_player(self, background, center_x, center_y, zoom, block_size):
+    def draw_player(self, center_x, center_y, zoom, block_size):
         zoom_factor = zoom * block_size
         if self.bottom_block_colour is not None:
-            pygame.draw.rect(background,
+            pygame.draw.rect(global_variables.background,
                              (255, 255, 255),
                              (center_x - self.width / 2 * zoom_factor,
                               center_y - self.height / 2 * zoom_factor,
@@ -71,9 +71,9 @@ class Player:
             x_offset = 1.625
         else:
             texture = self.current_texture
-        background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))), (center_x - x_offset * zoom_factor,
-                          center_y - 2.5 * zoom_factor))
-        # self.health_bar.draw_bar(background, 4, int(self.health_bar.width * 2) + 10, 10, 0)
+        global_variables.background.blit(pygame.transform.scale(texture, (int(size[0] * zoom), int(size[1] * zoom))),
+                                         (center_x - x_offset * zoom_factor, center_y - 2.5 * zoom_factor))
+        # self.health_bar.draw_bar(global_variables.background, 4, int(self.health_bar.width * 2) + 10, 10, 0)
     
     def manage_animations(self, tickrate):
         if self.speed.y_value > 0:

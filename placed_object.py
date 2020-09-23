@@ -1,5 +1,6 @@
 import pygame
 import random
+import global_variables
 
 
 class PlacedObject:
@@ -30,7 +31,7 @@ class PlacedObject:
         for i in range(len(self.textures)):
             self.textures[i] = pygame.transform.flip(self.textures[i], True, False)
 
-    def draw_object(self, background, player, zoom_factor, center_x, center_y, block_size, tickrate):
+    def draw_object(self, player, zoom_factor, center_x, center_y, block_size, tickrate):
         if self.touched:
             self.touched = False
         elif self.hardness < 3:
@@ -49,9 +50,9 @@ class PlacedObject:
         relative_distance_to_player = (position - player.position) * zoom
         screen_position = (center_x + relative_distance_to_player.x_value + jump_x,
                            center_y + relative_distance_to_player.y_value - self.size[1] * zoom_factor + 1.75 * zoom + jump_y)
-        background.blit(pygame.transform.scale(self.current_texture,
-                                               (int(self.size[0] * zoom_factor), int(self.size[1] * zoom_factor))),
-                        screen_position)
+        global_variables.background.blit(pygame.transform.scale(self.current_texture,
+                                         (int(self.size[0] * zoom_factor), int(self.size[1] * zoom_factor))),
+                                         screen_position)
 
     def animate(self, tickrate):
         amount_of_textures = len(self.textures)
