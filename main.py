@@ -156,7 +156,7 @@ class SpaceGame:
                     if self.zoom_factor > 0.25:
                         self.zoom_factor /= 2
                     if round(self.zoom_factor, 1) == 1.00:
-                        zoom_factor = 1
+                        self.zoom_factor = 1
                 elif event.key == pygame.K_F2:
                     if self.zoom_factor < 128:
                         self.zoom_factor *= 2
@@ -328,7 +328,7 @@ class SpaceGame:
             pos_x_on_screen = int(self.center_x + relative_distance_to_hope_ship.x_value)
             pos_y_on_screen = int(self.center_y + relative_distance_to_hope_ship.y_value)
             self.screen.blit(test, (pos_x_on_screen + self.template_space_object.radius,
-                               pos_y_on_screen + self.template_space_object.radius))
+                             pos_y_on_screen + self.template_space_object.radius))
         pygame.display.flip()
 
     def draw_stars(self):
@@ -434,9 +434,9 @@ class SpaceGame:
                                               pos_y_on_screen + space_thing.corner3.y_value * self.zoom_factor)))
                 if self.draw_vectors:
                     self.background = space_thing.draw_speed_vector(self.background, pos_x_on_screen, pos_y_on_screen,
-                                                               self.zoom_factor)
-                    self.background = space_thing.draw_acceleration_vector(self.background, pos_x_on_screen, pos_y_on_screen,
-                                                                      self.zoom_factor)
+                                                                    self.zoom_factor)
+                    self.background = space_thing.draw_acceleration_vector(self.background, pos_x_on_screen,
+                                                                           pos_y_on_screen, self.zoom_factor)
                 if space_thing.show_health_bar:
                     space_thing.health_bar.draw_bar(self.background, self.zoom_factor, pos_x_on_screen, pos_y_on_screen,
                                                     space_thing.radius)
